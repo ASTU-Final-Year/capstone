@@ -13,9 +13,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg"><Image src="/logo.png" alt="EduPlace Logo" width={32} height={32} /></span>
+              <span className="text-primary-foreground font-bold text-lg"><Image src="/logo.png" alt="ChoiceX Logo" width={32} height={32} /></span>
             </div>
-            <span className="font-bold text-xl text-foreground">EduPlace</span>
+            <span className="font-bold text-xl text-foreground">ChoiceX</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <Link href="#aboutus" className="text-muted-foreground hover:text-foreground transition">
@@ -60,7 +60,7 @@ export default function LandingPage() {
           </div>
           <Image
             src="/hero-removebg-preview.png"
-            alt="EduPlace platform dashboard preview"
+            alt="ChoiceX platform dashboard preview"
             width={900}
             height={900}
             priority
@@ -239,9 +239,9 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold"><Image src="/logo.png" alt="EduPlace Logo" width={32} height={32} />  </span>
+                  <span className="text-primary-foreground font-bold"><Image src="/logo.png" alt="ChoiceX Logo" width={32} height={32} />  </span>
                 </div>
-                <span className="font-bold text-foreground">EduPlace</span>
+                <span className="font-bold text-foreground">ChoiceX</span>
               </div>
               <p className="text-sm text-muted-foreground">Transforming education placement across Ethiopia</p>
             </div>
@@ -282,7 +282,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-border pt-8">
-            <p className="text-center text-sm text-muted-foreground">© 2026 EduPlace. All rights reserved.</p>
+            <p className="text-center text-sm text-muted-foreground">© 2026 ChoiceX. All rights reserved.</p>
           </div>
         </div>
       </footer>
