@@ -5,37 +5,13 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, BookOpen, Users, Zap, BarChart3, TrendingUp, CheckCircle2 } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts"
 import Image from "next/image"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b border-border sticky top-0 z-50 bg-background/95 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg"><Image src="/logo.png" alt="ChoiceX Logo" width={32} height={32} /></span>
-            </div>
-            <span className="font-bold text-xl text-foreground">ChoiceX</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8">
-            <Link href="#aboutus" className="text-muted-foreground hover:text-foreground transition">
-              About Us
-            </Link>
-            <Link href="#how-it-works" className="text-muted-foreground hover:text-foreground transition">
-              Process
-            </Link>
-            <Link href="#activity" className="text-muted-foreground hover:text-foreground transition">
-              Activity
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" className="text-foreground">
-              Log In
-            </Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Get Started</Button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-6 py-24 md:py-32">
@@ -233,59 +209,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card py-12">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr] mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold"><Image src="/logo.png" alt="ChoiceX Logo" width={32} height={32} />  </span>
-                </div>
-                <span className="font-bold text-foreground">ChoiceX</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Transforming education placement across Ethiopia</p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="#" className="hover:text-foreground transition">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition">
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="#" className="hover:text-foreground transition">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition">
-                    Terms
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-border pt-8">
-            <p className="text-center text-sm text-muted-foreground">© 2026 ChoiceX. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
