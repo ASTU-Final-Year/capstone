@@ -19,6 +19,7 @@ export const users = pgTable("users", {
   phone: varchar({ length: 16 }).notNull(),
   gender: varchar({ length: 12 }).notNull(),
   password: varchar({ length: 128 }).notNull(),
+  role: varchar({ length: 16 }).notNull(),
   createdAt: timestamp({ mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp({ mode: "date" }).notNull().defaultNow(),
 });
@@ -39,7 +40,6 @@ export const admins = pgTable("admins", {
     .notNull()
     .references(() => users.id, { onUpdate: "cascade", onDelete: "cascade" })
     .unique(),
-  role: varchar({ length: 12 }).notNull(),
   targetId: uuid().notNull(),
 });
 

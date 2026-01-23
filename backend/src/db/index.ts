@@ -36,14 +36,14 @@ export const populateDb = async () => {
           password: Bun.env.SUPER_ADMIN_PASSWORD || "SuperAdmin@12345",
           gender: "U",
           phone: "",
+          role: "super_admin",
         },
         {
           targetId: crypto.randomUUID(),
-          role: "super_admin",
         },
       );
     }
-    console.log("POPULATE_DB: super-admin already created");
+    console.log("POPULATE_DB: super-admin already created.");
   });
 
   await getRegionDetailsByCode("AA").then((region) => {
@@ -59,10 +59,10 @@ export const populateDb = async () => {
                   gender: "U",
                   password: "AddisAbebaRegionAdmin@12345",
                   phone: "",
+                  role: "region_admin",
                 },
                 {
                   targetId: region.id,
-                  role: "region_admin",
                 },
               );
             }
