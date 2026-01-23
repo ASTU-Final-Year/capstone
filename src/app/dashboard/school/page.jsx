@@ -74,6 +74,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 
 // Mock data aligned with EAES project requirements
 const mockStudents = [
@@ -369,6 +370,8 @@ export default function SchoolDashboard() {
           </div>
 
           <div className="flex gap-2 mt-4 md:mt-0">
+            <NotificationDropdown />
+
             <Button
               variant="outline"
               onClick={() => setIsEditProfileOpen(true)}
@@ -382,6 +385,7 @@ export default function SchoolDashboard() {
               <UserPlus className="mr-2 h-4 w-4" />
               Add Student
             </Button>
+
           </div>
         </div>
       </div>
