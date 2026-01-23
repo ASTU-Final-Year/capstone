@@ -53,9 +53,10 @@ export const authenticateUser = async (
       id: users.id,
       fullname: users.fullname,
       email: users.email,
-      password: users.password,
       gender: users.gender,
       phone: users.phone,
+      password: users.password,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })
@@ -86,6 +87,7 @@ export const getUserById = async (userId: string): Promise<User | null> => {
       email: users.email,
       gender: users.gender,
       phone: users.phone,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })
@@ -106,6 +108,7 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
       email: users.email,
       gender: users.gender,
       phone: users.phone,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })
@@ -127,9 +130,10 @@ export const createUser = async (input: CreateUserInput): Promise<User> => {
       id: crypto.randomUUID(),
       fullname: input.fullname,
       email: input.email,
-      password: hashedPassword,
       gender: input.gender,
       phone: input.phone,
+      role: input.role,
+      password: hashedPassword,
       createdAt: new Date(),
       updatedAt: new Date(),
     })
@@ -139,6 +143,7 @@ export const createUser = async (input: CreateUserInput): Promise<User> => {
       email: users.email,
       gender: users.gender,
       phone: users.phone,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     });
@@ -187,7 +192,6 @@ export const createAdminUser = async (
   userInput: CreateUserInput & { password?: string },
   adminInput: {
     targetId: string;
-    role: Role;
   },
 ): Promise<{ user: User; admin: Admin }> => {
   // Generate a random password
@@ -205,7 +209,6 @@ export const createAdminUser = async (
     .values({
       id: crypto.randomUUID(),
       userId: user.id,
-      role: adminInput.role,
       targetId: adminInput.targetId,
     })
     .returning();
@@ -242,6 +245,7 @@ export const updateUser = async (
       email: users.email,
       gender: users.gender,
       phone: users.phone,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     });
@@ -273,6 +277,7 @@ export const searchUsers = async (
       email: users.email,
       gender: users.gender,
       phone: users.phone,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })
@@ -320,6 +325,7 @@ export const getUsersByIds = async (userIds: string[]): Promise<User[]> => {
       email: users.email,
       gender: users.gender,
       phone: users.phone,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })
@@ -344,6 +350,7 @@ export const getUserWithStudentDetails = async (
         email: users.email,
         gender: users.gender,
         phone: users.phone,
+        role: users.role,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       },
@@ -401,20 +408,20 @@ export const getUserWithAdminDetails = async (
         email: users.email,
         gender: users.gender,
         phone: users.phone,
+        role: users.role,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       },
       admin: {
         id: admins.id,
         userId: admins.userId,
-        role: admins.role,
         targetId: admins.targetId,
       },
     })
     .from(users)
     .leftJoin(admins, eq(users.id, admins.userId))
     .where(eq(users.id, userId));
-
+  ``;
   if (!result?.user) return null;
 
   const userWithDetails: User & { admin?: Admin } = result.user;
@@ -483,6 +490,7 @@ export const getAllStudents = async (
           email: users.email,
           gender: users.gender,
           phone: users.phone,
+          role: users.role,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         },
