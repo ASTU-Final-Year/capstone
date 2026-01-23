@@ -118,23 +118,36 @@ export default function ForgotPasswordPage() {
 
             {/* Progress Indicator */}
             <div className="w-full max-w-md mb-8">
-                <div className="flex items-center justify-between">
-                    {[1, 2, 3].map((stepNum) => (
-                        <div key={stepNum} className="flex flex-col items-center">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= stepNum ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                                {step > stepNum ? <CheckCircle className="w-4 h-4" /> : stepNum}
-                            </div>
-                            <span className="text-xs mt-2 text-muted-foreground">
-                                {stepNum === 1 && "Email"}
-                                {stepNum === 2 && "Verify"}
-                                {stepNum === 3 && "Reset"}
-                            </span>
-                        </div>
-                    ))}
-                    <div className={`flex-1 h-0.5 ${step >= 2 ? 'bg-primary' : 'bg-muted'} -mt-4`}></div>
-                    <div className={`flex-1 h-0.5 ${step >= 3 ? 'bg-primary' : 'bg-muted'} -mt-4`}></div>
+    <div className="flex items-center justify-center">
+        {[1, 2, 3].map((stepNum, index, array) => (
+            <div key={stepNum} className="flex items-center">
+                <div className="flex flex-col items-center">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= stepNum 
+                        ? step === stepNum 
+                            ? 'bg-primary text-primary-foreground animate-pulse' 
+                            : 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}>
+                        {step > stepNum ? (
+                            <CheckCircle className="w-4 h-4" />
+                        ) : (
+                            <span className="text-sm font-bold">{stepNum}</span>
+                        )}
+                    </div>
+                    <div className={`text-xs font-medium mt-2 px-3 py-1 rounded-full ${step >= stepNum 
+                        ? 'bg-primary/10 text-primary' 
+                        : 'text-muted-foreground'
+                    }`}>
+                        {stepNum === 1 ? 'Email' : stepNum === 2 ? 'Verification' : 'Password'}
+                    </div>
                 </div>
+                {index < array.length - 1 && (
+                    <div className={`w-16 h-0.5 ${step > stepNum ? 'bg-primary' : 'bg-muted'}`}></div>
+                )}
             </div>
+        ))}
+    </div>
+</div>
 
             {/* Reset Card */}
             <Card className="w-full max-w-md shadow-lg border-border">
