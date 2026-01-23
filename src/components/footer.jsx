@@ -10,17 +10,17 @@ export default function Footer() {
                         <h3 className="font-bold mb-4">Product</h3>
                         <ul className="space-y-2 text-white/70 text-sm">
                             <li>
-                                <Link href="#" className="hover:text-white transition">
+                                <Link href="#" disabled className="hover:text-white transition">
                                     Features
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="hover:text-white transition">
-                                    Pricing
+                                <Link href="#" disabled className="hover:text-white transition">
+                                    Benefits
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="hover:text-white transition">
+                                <Link href="#" disabled className="hover:text-white transition">
                                     Security
                                 </Link>
                             </li>
@@ -35,12 +35,12 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="hover:text-white transition">
+                                <Link href="#" disabled className="hover:text-white transition">
                                     Blog
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="hover:text-white transition">
+                                <Link href="#" disabled className="hover:text-white transition">
                                     Careers
                                 </Link>
                             </li>
@@ -50,17 +50,17 @@ export default function Footer() {
                         <h3 className="font-bold mb-4">Legal</h3>
                         <ul className="space-y-2 text-white/70 text-sm">
                             <li>
-                                <Link href="#" className="hover:text-white transition">
+                                <Link href="/privacy" className="hover:text-white transition">
                                     Privacy
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="hover:text-white transition">
+                                <Link href="/terms" className="hover:text-white transition">
                                     Terms
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="hover:text-white transition">
+                                <Link href="/cookie-policy" className="hover:text-white transition">
                                     Cookie Policy
                                 </Link>
                             </li>
