@@ -55,14 +55,13 @@ export default function UniversityDashboard() {
     })
 
     const [placements, setPlacements] = useState([
-        { id: 1, studentName: "John Doe", program: "Computer Science", placementDate: "2024-06-15", status: "Confirmed" },
-        { id: 2, studentName: "Jane Smith", program: "Medicine", placementDate: "2024-06-15", status: "Confirmed" },
-        { id: 3, studentName: "Michael Johnson", program: "Engineering", placementDate: "2024-06-15", status: "Confirmed" },
-        { id: 4, studentName: "Sarah Williams", program: "Business", placementDate: "2024-06-15", status: "Confirmed" },
-        { id: 5, studentName: "David Brown", program: "Law", placementDate: "2024-06-15", status: "Confirmed" },
-        { id: 6, studentName: "Emily Davis", program: "Medicine", placementDate: "2024-06-15", status: "Confirmed" },
+        { id: 1, studentName: "John Doe", stream: "Natural Science", status: "Confirmed" },
+        { id: 2, studentName: "Jane Smith", stream: "Natural Science", status: "Confirmed" },
+        { id: 3, studentName: "Michael Johnson", stream: "Social Science", status: "Confirmed" },
+        { id: 4, studentName: "Sarah Williams", stream: "Social Science", status: "Confirmed" },
+        { id: 5, studentName: "David Brown", stream: "Natural Science", status: "Confirmed" },
+        { id: 6, studentName: "Emily Davis", stream: "Social Science", status: "Confirmed" },
     ])
-
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
     const [isEditCapacityOpen, setIsEditCapacityOpen] = useState(false)
     const [editedUniversity, setEditedUniversity] = useState({ ...university })
@@ -90,7 +89,6 @@ export default function UniversityDashboard() {
             icon: Percent,
             color: "text-purple-500"
         },
-
     ]
 
     const handleUpdateProfile = (e) => {
@@ -216,8 +214,7 @@ export default function UniversityDashboard() {
                                             <TableHeader>
                                                 <TableRow>
                                                     <TableHead>Student Name</TableHead>
-                                                    <TableHead>Program</TableHead>
-                                                    <TableHead>Placement Date</TableHead>
+                                                    <TableHead>Stream</TableHead>
                                                     <TableHead>Status</TableHead>
                                                 </TableRow>
                                             </TableHeader>
@@ -225,12 +222,19 @@ export default function UniversityDashboard() {
                                                 {placements.map((placement) => (
                                                     <TableRow key={placement.id}>
                                                         <TableCell className="font-medium">{placement.studentName}</TableCell>
-                                                        <TableCell>{placement.program}</TableCell>
                                                         <TableCell>
-                                                            {new Date(placement.placementDate).toLocaleDateString()}
+                                                            <Badge
+                                                                className={
+                                                                    placement.stream === "Natural Science"
+                                                                        ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+                                                                        : "bg-purple-100 text-purple-800 hover:bg-purple-100"
+                                                                }
+                                                            >
+                                                                {placement.stream}
+                                                            </Badge>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <Badge variant="default">
+                                                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
                                                                 {placement.status}
                                                             </Badge>
                                                         </TableCell>
@@ -368,7 +372,7 @@ export default function UniversityDashboard() {
                                             <div className="mt-2 space-y-2">
                                                 <p>
                                                     <span className="font-medium">Active:</span>{" "}
-                                                    <Badge variant={university.isActive ? "default" : "secondary"}>
+                                                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
                                                         {university.isActive ? "Active" : "Inactive"}
                                                     </Badge>
                                                 </p>
