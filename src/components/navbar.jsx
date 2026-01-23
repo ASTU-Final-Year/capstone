@@ -14,7 +14,7 @@ export default function Navbar() {
                     <span className="font-bold text-xl text-foreground">ChoiceX</span>
                 </div>
                 <div className="hidden md:flex items-center gap-8">
-                    <Link href="#aboutus" className="text-muted-foreground hover:text-foreground transition">
+                    <Link href="/about" className="text-muted-foreground hover:text-foreground transition">
                         About Us
                     </Link>
                     <Link href="#how-it-works" className="text-muted-foreground hover:text-foreground transition">
@@ -25,10 +25,11 @@ export default function Navbar() {
                     </Link>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" className="text-foreground">
-                        Log In
-                    </Button>
-                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Get Started</Button>
+                    <Link href="/login">
+                        <Button variant="ghost" className="text-foreground">
+                         Log In
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </nav>
