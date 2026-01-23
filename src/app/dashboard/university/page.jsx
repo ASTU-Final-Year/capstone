@@ -14,6 +14,12 @@ import {
     Users,
     BarChart3,
     Bell,
+    Check,
+    X,
+    AlertCircle,
+    Info,
+    UserPlus,
+    FileText,
     LogOut,
     Download,
     Edit,
@@ -29,14 +35,16 @@ import {
     TrendingUp
 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Progress } from "@/components/ui/progress"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function UniversityDashboard() {
     const router = useRouter()
@@ -135,6 +143,143 @@ export default function UniversityDashboard() {
                         </div>
 
                         <div className="flex items-center gap-4">
+                            <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="relative">
+                                <Bell className="w-4 h-4" />
+                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-96 max-h-[500px] overflow-y-auto">
+                                <DropdownMenuLabel className="flex justify-between items-center">
+                                <span>Notifications</span>
+                                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                                    Mark all as read
+                                </Button>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                
+                                {/* Unread Notifications */}
+                                <div className="px-2 py-1">
+                                <div className="text-xs font-medium text-muted-foreground mb-2 px-2">UNREAD</div>
+                                {[
+                                    {
+                                    id: 1,
+                                    type: "new_application",
+                                    title: "New Application Received",
+                                    description: "Student: Michael Getachew (GPA: 3.8)",
+                                    time: "10 minutes ago",
+                                    read: false,
+                                    icon: UserPlus,
+                                    iconColor: "text-blue-500"
+                                    },
+                                    {
+                                    id: 2,
+                                    type: "placement_pending",
+                                    title: "Placement Decision Required",
+                                    description: "5 placements awaiting your review",
+                                    time: "1 hour ago",
+                                    read: false,
+                                    icon: FileText,
+                                    iconColor: "text-amber-500"
+                                    },
+                                    {
+                                    id: 3,
+                                    type: "deadline",
+                                    title: "Application Deadline Approaching",
+                                    description: "3 days left for 2024 applications",
+                                    time: "2 hours ago",
+                                    read: false,
+                                    icon: Calendar,
+                                    iconColor: "text-red-500"
+                                    }
+                                ].map((notification) => (
+                                    <DropdownMenuItem key={notification.id} className="py-3 px-2 cursor-pointer hover:bg-muted/50">
+                                    <div className="flex items-start gap-3 w-full">
+                                        <div className={`p-2 rounded-full bg-muted ${notification.iconColor.replace("text-", "bg-")}/10`}>
+                                        <notification.icon className={`w-4 h-4 ${notification.iconColor}`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-start">
+                                            <p className="font-medium text-sm">{notification.title}</p>
+                                            <span className="text-xs text-muted-foreground">{notification.time}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-1 truncate">{notification.description}</p>
+                                        </div>
+                                        {!notification.read && (
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                                        )}
+                                    </div>
+                                    </DropdownMenuItem>
+                                ))}
+                                </div>
+
+                                <DropdownMenuSeparator />
+                                
+                                {/* Read Notifications */}
+                                <div className="px-2 py-1">
+                                <div className="text-xs font-medium text-muted-foreground mb-2 px-2">EARLIER</div>
+                                {[
+                                    {
+                                    id: 4,
+                                    type: "system",
+                                    title: "System Maintenance",
+                                    description: "Scheduled maintenance on Saturday, 2 AM",
+                                    time: "Yesterday",
+                                    read: true,
+                                    icon: Info,
+                                    iconColor: "text-gray-500"
+                                    },
+                                    {
+                                    id: 5,
+                                    type: "capacity",
+                                    title: "Capacity Alert",
+                                    description: "Engineering program at 92% capacity",
+                                    time: "2 days ago",
+                                    read: true,
+                                    icon: AlertCircle,
+                                    iconColor: "text-orange-500"
+                                    },
+                                    {
+                                    id: 6,
+                                    type: "application",
+                                    title: "Application Processed",
+                                    description: "50 applications processed automatically",
+                                    time: "3 days ago",
+                                    read: true,
+                                    icon: Check,
+                                    iconColor: "text-green-500"
+                                    }
+                                ].map((notification) => (
+                                    <DropdownMenuItem key={notification.id} className="py-3 px-2 cursor-pointer hover:bg-muted/50">
+                                    <div className="flex items-start gap-3 w-full opacity-70">
+                                        <div className={`p-2 rounded-full bg-muted ${notification.iconColor.replace("text-", "bg-")}/10`}>
+                                        <notification.icon className={`w-4 h-4 ${notification.iconColor}`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-start">
+                                            <p className="font-medium text-sm">{notification.title}</p>
+                                            <span className="text-xs text-muted-foreground">{notification.time}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-1 truncate">{notification.description}</p>
+                                        </div>
+                                    </div>
+                                    </DropdownMenuItem>
+                                ))}
+                                </div>
+
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="justify-center text-sm py-2 cursor-pointer">
+                                <Button variant="ghost" size="sm" className="w-full">
+                                    View All Notifications
+                                </Button>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                            </DropdownMenu>
+                            <Avatar>
+                                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${university.abbreviation}`} />
+                                <AvatarFallback>{university.abbreviation}</AvatarFallback>
+                            </Avatar>
                             <Button variant="outline" size="sm" onClick={handleLogout}>
                                 <LogOut className="w-4 h-4 mr-2" />
                                 Logout
@@ -165,21 +310,13 @@ export default function UniversityDashboard() {
                     ))}
                 </div>
 
-                {/* Main Content */}
-                <Tabs defaultValue="placements" className="space-y-8">
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="placements">
-                            <Users className="mr-2 h-4 w-4" />
-                            Student Placements
-                        </TabsTrigger>
-                        <TabsTrigger value="capacity">
-                            <Building className="mr-2 h-4 w-4" />
-                            Capacity
-                        </TabsTrigger>
-                        <TabsTrigger value="profile">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Profile
-                        </TabsTrigger>
+                <Tabs defaultValue="applications" className="space-y-8">
+                    <TabsList className="grid grid-cols-5 w-full">
+                        <TabsTrigger value="applications">Applications</TabsTrigger>
+                        <TabsTrigger value="placements">Placements</TabsTrigger>
+                        <TabsTrigger value="profile">Profile</TabsTrigger>
+                        <TabsTrigger value="capacity">Capacity</TabsTrigger>
+                        <TabsTrigger value="settings">Settings</TabsTrigger>
                     </TabsList>
 
                     {/* Placements Tab */}
@@ -315,8 +452,163 @@ export default function UniversityDashboard() {
                         </Card>
                     </TabsContent>
 
-                    {/* Profile Tab */}
                     <TabsContent value="profile">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Admin Profile</CardTitle>
+                                <CardDescription>Manage your account settings and preferences</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-6">
+                                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                                        <div className="text-center md:text-left">
+                                            <Avatar className="w-24 h-24 mx-auto md:mx-0">
+                                                <AvatarImage 
+                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${university.abbreviation}-admin`} 
+                                                />
+                                                <AvatarFallback>{university.abbreviation}</AvatarFallback>
+                                            </Avatar>
+                                            <Button variant="outline" size="sm" className="mt-4">
+                                                Change Photo
+                                            </Button>
+                                        </div>
+                                        
+                                        <div className="flex-1 space-y-2">
+                                            <div>
+                                                <h3 className="text-xl font-bold">University Administrator</h3>
+                                                <p className="text-muted-foreground">{university.name}</p>
+                                            </div>
+                                            <div className="flex items-center gap-4 text-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <Mail className="w-4 h-4" />
+                                                    <span>admin@{university.abbreviation.toLowerCase()}.edu.et</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Phone className="w-4 h-4" />
+                                                    <span>+251 11 987 6543</span>
+                                                </div>
+                                            </div>
+                                            <Badge variant="secondary">University Administrator</Badge>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="space-y-4">
+                                            <h3 className="font-bold text-lg">Personal Information</h3>
+                                            <div>
+                                                <label className="text-sm font-medium mb-2 block">Full Name</label>
+                                                <Input placeholder="Enter your full name" defaultValue="John Doe" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium mb-2 block">Email Address</label>
+                                                <Input type="email" placeholder="Enter your email" defaultValue="admin@aau.edu.et" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium mb-2 block">Phone Number</label>
+                                                <Input placeholder="Enter your phone number" defaultValue="+251 11 987 6543" />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h3 className="font-bold text-lg">Account Security</h3>
+                                            <div>
+                                                <label className="text-sm font-medium mb-2 block">Current Password</label>
+                                                <Input type="password" placeholder="Enter current password" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium mb-2 block">New Password</label>
+                                                <Input type="password" placeholder="Enter new password" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium mb-2 block">Confirm New Password</label>
+                                                <Input type="password" placeholder="Confirm new password" />
+                                            </div>
+                                            <div className="pt-2">
+                                                <Button variant="outline" className="w-full">
+                                                    Change Password
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h3 className="font-bold text-lg">Notification Preferences</h3>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="font-medium">Application Notifications</p>
+                                                    <p className="text-sm text-muted-foreground">Get notified when new applications arrive</p>
+                                                </div>
+                                                <input type="checkbox" className="toggle" defaultChecked />
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="font-medium">Placement Alerts</p>
+                                                    <p className="text-sm text-muted-foreground">Receive alerts for placement decisions</p>
+                                                </div>
+                                                <input type="checkbox" className="toggle" defaultChecked />
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="font-medium">System Updates</p>
+                                                    <p className="text-sm text-muted-foreground">Notifications about system maintenance</p>
+                                                </div>
+                                                <input type="checkbox" className="toggle" defaultChecked />
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="font-medium">Email Digest</p>
+                                                    <p className="text-sm text-muted-foreground">Daily summary of university activities</p>
+                                                </div>
+                                                <input type="checkbox" className="toggle" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h3 className="font-bold text-lg">System Access & Permissions</h3>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between p-3 border rounded-lg">
+                                                <div>
+                                                    <p className="font-medium">View Applications</p>
+                                                    <p className="text-sm text-muted-foreground">Access student applications</p>
+                                                </div>
+                                                <Badge variant="default">Allowed</Badge>
+                                            </div>
+                                            <div className="flex items-center justify-between p-3 border rounded-lg">
+                                                <div>
+                                                    <p className="font-medium">Review Placements</p>
+                                                    <p className="text-sm text-muted-foreground">Approve or reject placements</p>
+                                                </div>
+                                                <Badge variant="default">Allowed</Badge>
+                                            </div>
+                                            <div className="flex items-center justify-between p-3 border rounded-lg">
+                                                <div>
+                                                    <p className="font-medium">Edit University Info</p>
+                                                    <p className="text-sm text-muted-foreground">Update university details</p>
+                                                </div>
+                                                <Badge variant="default">Allowed</Badge>
+                                            </div>
+                                            <div className="flex items-center justify-between p-3 border rounded-lg">
+                                                <div>
+                                                    <p className="font-medium">Manage Users</p>
+                                                    <p className="text-sm text-muted-foreground">Add/remove university staff</p>
+                                                </div>
+                                                <Badge variant="secondary">Not Allowed</Badge>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row gap-3 justify-end pt-4 border-t">
+                                        <Button variant="outline">Cancel</Button>
+                                        <Button>Save Profile Changes</Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="settings">
                         <Card>
                             <CardHeader>
                                 <div className="flex items-center justify-between">

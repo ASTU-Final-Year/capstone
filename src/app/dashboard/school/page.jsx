@@ -1,16 +1,16 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -18,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -26,15 +26,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   BarChart,
   Bar,
@@ -47,7 +46,9 @@ import {
   PieChart,
   Pie,
   Cell,
-} from 'recharts';
+  LineChart,
+  Line,
+} from "recharts";
 import {
   Users,
   GraduationCap,
@@ -56,46 +57,55 @@ import {
   UserPlus,
   School,
   BookOpen,
-  FileText,
-  CheckCircle,
+  Filter,
   Edit,
-  Eye,
   Send,
-  Calendar,
+  FileText,
+  Activity,
   AlertCircle,
-  Download
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { Switch } from '@/components/ui/switch';
+  Calendar,
+  CheckCircle,
+  Clock,
+  Eye,
+  Download,
+  Mail,
+  Phone,
+  MapPin
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 // Mock data aligned with EAES project requirements
 const mockStudents = [
   {
-    id: '1',
-    fullname: 'John Doe',
-    email: 'john@example.com',
-    phone: '+251911234567',
-    nationalId: '123456789',
-    birthDate: '2005-06-15',
-    academicYear: '2024',
+    id: "1",
+    fullname: "John Doe",
+    email: "john@example.com",
+    phone: "+251911234567",
+    nationalId: "123456789",
+    birthDate: "2005-06-15",
+    academicYear: "2024",
     gpa: 3.8,
+    isActive: true,
+    specialNeed: false,
     verificationStatus: 'Verified',
     isSubmitted: true,
-    createdAt: '2024-01-15T10:30:00Z'
+    createdAt: "2024-01-15T10:30:00Z",
   },
   {
-    id: '2',
-    fullname: 'Jane Smith',
-    email: 'jane@example.com',
-    phone: '+251911234568',
-    nationalId: '987654321',
-    birthDate: '2005-03-22',
-    academicYear: '2024',
+    id: "2",
+    fullname: "Jane Smith",
+    email: "jane@example.com",
+    phone: "+251911234568",
+    nationalId: "987654321",
+    birthDate: "2005-03-22",
+    academicYear: "2024",
     gpa: 3.9,
+    isActive: true,
+    specialNeed: true,
     verificationStatus: 'Verified',
     isSubmitted: true,
-    createdAt: '2024-01-16T14:45:00Z'
+    createdAt: "2024-01-16T14:45:00Z",
   },
   {
     id: '3',
@@ -106,6 +116,8 @@ const mockStudents = [
     birthDate: '2005-08-10',
     academicYear: '2024',
     gpa: 3.5,
+    isActive: true,
+    specialNeed: false,
     verificationStatus: 'Pending',
     isSubmitted: false,
     createdAt: '2024-01-17T09:15:00Z'
@@ -130,8 +142,8 @@ const mockPlacements = [
     status: 'Placed'
   },
   {
-    studentId: '4',
-    studentName: 'Sarah Williams',
+    studentId: '3',
+    studentName: 'Michael Johnson',
     university: 'Hawassa University',
     program: 'Engineering',
     placementDate: '2024-06-15',
@@ -139,7 +151,7 @@ const mockPlacements = [
   },
 ];
 
-const mockSchoolProfile = {
+const initialSchoolProfile = {
   name: 'Central High School',
   schoolId: 'CHS-001',
   type: 'Public',
@@ -151,68 +163,60 @@ const mockSchoolProfile = {
   totalStudents: 245,
   submittedStudents: 230,
   verifiedStudents: 200,
-  placedStudents: 0,
-  submissionDeadline: '2024-04-30',
-  placementReleaseDate: '2024-06-15'
+  placedStudents: 3,
+  placementReleaseDate: '2024-06-15',
+  submissionDeadline: '2024-04-30'
 };
+
+const mockAnalytics = {
+  totalStudents: 245,
+  activeStudents: 230,
+  averageGPA: 3.45,
+  graduationRate: 92,
+  specialNeedsCount: 18,
+  yearDistribution: [
+    { year: "2024", count: 85 },
+    { year: "2023", count: 80 },
+    { year: "2022", count: 80 },
+  ],
+  gpaDistribution: [
+    { range: "4.0", count: 15 },
+    { range: "3.5-3.9", count: 85 },
+    { range: "3.0-3.4", count: 90 },
+    { range: "2.5-2.9", count: 40 },
+    { range: "Below 2.5", count: 15 },
+  ]
+};
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export default function SchoolDashboard() {
   const [students, setStudents] = useState(mockStudents);
   const [placements, setPlacements] = useState(mockPlacements);
-  const [schoolProfile, setSchoolProfile] = useState(mockSchoolProfile);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [schoolProfile, setSchoolProfile] = useState(initialSchoolProfile);
+  const [analytics, setAnalytics] = useState(mockAnalytics);
+  const [activeTab, setActiveTab] = useState("overview");
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isSubmitAllOpen, setIsSubmitAllOpen] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [editedProfile, setEditedProfile] = useState({ ...initialSchoolProfile });
   const [newStudent, setNewStudent] = useState({
-    fullname: '',
-    email: '',
-    phone: '',
-    nationalId: '',
-    birthDate: '',
-    academicYear: '2024',
-    gender: '',
-    gpa: '',
+    fullname: "",
+    email: "",
+    phone: "",
+    nationalId: "",
+    birthDate: "",
+    academicYear: "2024",
+    gender: "",
+    password: "",
+    gpa: "",
     specialNeed: false,
   });
-  const [editedProfile, setEditedProfile] = useState({ ...schoolProfile });
-  const [selectedStudents, setSelectedStudents] = useState([]);
 
-  // Stats cards for overview
-  const statsCards = [
-    {
-      title: 'Total Students',
-      value: schoolProfile.totalStudents,
-      icon: <Users className="h-4 w-4" />,
-      description: 'Registered students',
-      color: 'bg-blue-500',
-      trend: '+12 this month'
-    },
-    {
-      title: 'Verified & Ready',
-      value: schoolProfile.verifiedStudents,
-      icon: <CheckCircle className="h-4 w-4" />,
-      description: 'Ready for EAES submission',
-      color: 'bg-green-500',
-      trend: `${Math.round((schoolProfile.verifiedStudents / schoolProfile.totalStudents) * 100)}% complete`
-    },
-    {
-      title: 'Submitted to EAES',
-      value: schoolProfile.submittedStudents,
-      icon: <FileText className="h-4 w-4" />,
-      description: 'Final submission complete',
-      color: 'bg-purple-500',
-      trend: 'Awaiting placement'
-    },
-    {
-      title: 'Placement Date',
-      value: format(new Date(schoolProfile.placementReleaseDate), 'MMM dd'),
-      icon: <Calendar className="h-4 w-4" />,
-      description: 'Expected release',
-      color: 'bg-orange-500',
-      trend: 'All students placed together'
-    },
-  ];
+  const canSubmitToEAES = students.some(s => s.verificationStatus === 'Verified' && !s.isSubmitted);
+  const placementsReleased = new Date() >= new Date(schoolProfile.placementReleaseDate);
+  const verificationProgress = Math.round((schoolProfile.verifiedStudents / schoolProfile.totalStudents) * 100);
 
   const handleAddStudent = async (e) => {
     e.preventDefault();
@@ -221,6 +225,7 @@ export default function SchoolDashboard() {
       id: String(students.length + 1),
       ...newStudent,
       gpa: parseFloat(newStudent.gpa) || 0,
+      isActive: true,
       verificationStatus: 'Pending',
       isSubmitted: false,
       createdAt: new Date().toISOString(),
@@ -234,14 +239,15 @@ export default function SchoolDashboard() {
 
     setIsAddStudentOpen(false);
     setNewStudent({
-      fullname: '',
-      email: '',
-      phone: '',
-      nationalId: '',
-      birthDate: '',
-      academicYear: '2024',
-      gender: '',
-      gpa: '',
+      fullname: "",
+      email: "",
+      phone: "",
+      nationalId: "",
+      birthDate: "",
+      academicYear: "2024",
+      gender: "",
+      password: "",
+      gpa: "",
       specialNeed: false,
     });
   };
@@ -253,10 +259,8 @@ export default function SchoolDashboard() {
   };
 
   const handleSubmitAllToEAES = () => {
-    // Submit all verified students to EAES
     const verifiedStudents = students.filter(s => s.verificationStatus === 'Verified' && !s.isSubmitted);
 
-    // Update student submission status
     const updatedStudents = students.map(student =>
       student.verificationStatus === 'Verified' && !student.isSubmitted
         ? { ...student, isSubmitted: true }
@@ -264,8 +268,6 @@ export default function SchoolDashboard() {
     );
 
     setStudents(updatedStudents);
-
-    // Update school profile stats
     setSchoolProfile(prev => ({
       ...prev,
       submittedStudents: prev.submittedStudents + verifiedStudents.length
@@ -305,20 +307,43 @@ export default function SchoolDashboard() {
   };
 
   const handleInputChange = (field, value) => {
-    setNewStudent(prev => ({ ...prev, [field]: value }));
+    setNewStudent((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleProfileChange = (field, value) => {
     setEditedProfile(prev => ({ ...prev, [field]: value }));
   };
 
-  // Calculate verification progress
-  const verificationProgress = Math.round((schoolProfile.verifiedStudents / schoolProfile.totalStudents) * 100);
-  const submissionProgress = Math.round((schoolProfile.submittedStudents / schoolProfile.totalStudents) * 100);
-
-  // Check if placements are released
-  const placementsReleased = new Date() >= new Date(schoolProfile.placementReleaseDate);
-  const canSubmitToEAES = students.some(s => s.verificationStatus === 'Verified' && !s.isSubmitted);
+  const statsCards = [
+    {
+      title: "Total Students",
+      value: schoolProfile.totalStudents,
+      icon: Users,
+      description: "Registered students",
+      color: "bg-blue-500",
+    },
+    {
+      title: "Submitted to EAES",
+      value: schoolProfile.submittedStudents,
+      icon: FileText,
+      description: "Data sent for placement",
+      color: "bg-green-500",
+    },
+    {
+      title: "Verified by Students",
+      value: schoolProfile.verifiedStudents,
+      icon: CheckCircle,
+      description: "Student-verified data",
+      color: "bg-purple-500",
+    },
+    {
+      title: "Placement Date",
+      value: format(new Date(schoolProfile.placementReleaseDate), 'MMM dd'),
+      icon: Calendar,
+      description: "Expected release",
+      color: "bg-orange-500",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -326,10 +351,14 @@ export default function SchoolDashboard() {
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">EAES School Portal</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              EAES School Portal
+            </h1>
             <div className="mt-2 flex items-center gap-2">
               <School className="h-5 w-5 text-gray-500" />
-              <p className="text-gray-600">{schoolProfile.name} • ID: {schoolProfile.schoolId}</p>
+              <p className="text-gray-600">
+                {schoolProfile.name} • ID: {schoolProfile.schoolId}
+              </p>
               <Badge variant="secondary">{schoolProfile.type}</Badge>
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-gray-500">
@@ -358,8 +387,12 @@ export default function SchoolDashboard() {
       </div>
 
       {/* Tabs Navigation */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">
             <BookOpen className="mr-2 h-4 w-4" />
             Overview
@@ -389,16 +422,13 @@ export default function SchoolDashboard() {
                     {stat.title}
                   </CardTitle>
                   <div className={`rounded-full p-2 ${stat.color} text-white`}>
-                    {stat.icon}
+                    <stat.icon className="h-4 w-4" />
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stat.value}</div>
                   <p className="text-xs text-muted-foreground">
                     {stat.description}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {stat.trend}
                   </p>
                 </CardContent>
               </Card>
@@ -444,12 +474,12 @@ export default function SchoolDashboard() {
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span>Submitted: {schoolProfile.submittedStudents} students</span>
-                    <span>{submissionProgress}%</span>
+                    <span>{Math.round((schoolProfile.submittedStudents / schoolProfile.totalStudents) * 100)}%</span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-blue-500 rounded-full"
-                      style={{ width: `${submissionProgress}%` }}
+                      style={{ width: `${(schoolProfile.submittedStudents / schoolProfile.totalStudents) * 100}%` }}
                     />
                   </div>
                   <div className="flex justify-between">
@@ -528,7 +558,7 @@ export default function SchoolDashboard() {
           {/* Recent Activity */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activities</CardTitle>
+              <CardTitle>Recent Student Activities</CardTitle>
               <CardDescription>Latest student verification and submission activities</CardDescription>
             </CardHeader>
             <CardContent>
@@ -544,7 +574,9 @@ export default function SchoolDashboard() {
                 <TableBody>
                   {students.slice(0, 5).map((student) => (
                     <TableRow key={student.id}>
-                      <TableCell className="font-medium">{student.fullname}</TableCell>
+                      <TableCell className="font-medium">
+                        {student.fullname}
+                      </TableCell>
                       <TableCell>
                         {student.isSubmitted ? 'EAES Submission' :
                           student.verificationStatus === 'Verified' ? 'Student Verification' : 'Data Entry'}
@@ -552,13 +584,13 @@ export default function SchoolDashboard() {
                       <TableCell>
                         <Badge variant={
                           student.isSubmitted ? "default" :
-                            student.verificationStatus === 'Verified' ? "success" : "secondary"
+                            student.verificationStatus === 'Verified' ? "default" : "secondary"
                         }>
                           {student.isSubmitted ? 'Submitted' : student.verificationStatus}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {format(new Date(student.createdAt), 'MMM dd, yyyy')}
+                        {format(new Date(student.createdAt), "MMM dd, yyyy")}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -602,11 +634,8 @@ export default function SchoolDashboard() {
                     <FileText className="mr-2 h-3 w-3" />
                     Submit All Verified
                   </Button>
-                  <Button
-                    onClick={() => setIsAddStudentOpen(true)}
-                    size="sm"
-                  >
-                    <PlusCircle className="mr-2 h-3 w-3" />
+                  <Button onClick={() => setIsAddStudentOpen(true)} size="sm">
+                    <PlusCircle className="mr-2 h-4 w-4" />
                     Add Student
                   </Button>
                 </div>
@@ -651,7 +680,9 @@ export default function SchoolDashboard() {
                             onChange={() => handleToggleStudentSelection(student.id)}
                           />
                         </TableCell>
-                        <TableCell className="font-medium">{student.fullname}</TableCell>
+                        <TableCell className="font-medium">
+                          {student.fullname}
+                        </TableCell>
                         <TableCell>{student.nationalId}</TableCell>
                         <TableCell>{student.academicYear}</TableCell>
                         <TableCell>{student.gpa}</TableCell>
@@ -685,41 +716,6 @@ export default function SchoolDashboard() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Summary Statistics */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Student Status Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Verified & Submitted', value: schoolProfile.submittedStudents },
-                        { name: 'Verified (Not Submitted)', value: schoolProfile.verifiedStudents - schoolProfile.submittedStudents },
-                        { name: 'Pending Verification', value: schoolProfile.totalStudents - schoolProfile.verifiedStudents },
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      <Cell fill="#10B981" />
-                      <Cell fill="#3B82F6" />
-                      <Cell fill="#6B7280" />
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Placements Tab */}
@@ -730,21 +726,25 @@ export default function SchoolDashboard() {
                 <div>
                   <CardTitle>Student Placements</CardTitle>
                   <CardDescription>
-                    {placementsReleased
-                      ? 'Placement results released by EAES'
-                      : `Placements will be released on ${format(new Date(schoolProfile.placementReleaseDate), 'MMMM dd, yyyy')}`}
+                    View placement results from EAES
                   </CardDescription>
                 </div>
-                {placementsReleased && placements.length > 0 && (
-                  <Button variant="outline" size="sm">
-                    <Download className="mr-2 h-4 w-4" />
-                    Export Results
-                  </Button>
-                )}
+                <Button variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Data
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
-              {placementsReleased ? (
+              {placements.length === 0 ? (
+                <div className="text-center py-12">
+                  <GraduationCap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Placements Yet</h3>
+                  <p className="text-gray-600">
+                    Placement results will appear here once released by EAES
+                  </p>
+                </div>
+              ) : (
                 <>
                   <div className="mb-6 p-4 bg-green-50 rounded-lg">
                     <div className="flex items-center gap-2 text-green-700">
@@ -792,56 +792,13 @@ export default function SchoolDashboard() {
                       </TableBody>
                     </Table>
                   </div>
-
-                  {/* Placement Statistics */}
-                  <Card className="mt-6">
-                    <CardHeader>
-                      <CardTitle>Placement Distribution</CardTitle>
-                      <CardDescription>University placement statistics</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={[
-                            { university: 'Addis Ababa University', count: 45 },
-                            { university: 'Jimma University', count: 35 },
-                            { university: 'Hawassa University', count: 25 },
-                            { university: 'Bahir Dar University', count: 20 },
-                            { university: 'Mekelle University', count: 15 },
-                          ]}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="university" />
-                            <YAxis />
-                            <Tooltip />
-                            <Bar dataKey="count" fill="#10B981" />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 mb-4">
-                    <Clock className="h-8 w-8 text-yellow-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Placements Pending
-                  </h3>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    All student placements will be released simultaneously by EAES on{' '}
-                    <span className="font-semibold">
-                      {format(new Date(schoolProfile.placementReleaseDate), 'MMMM dd, yyyy')}
-                    </span>.
-                    Check back after this date to view placement results.
-                  </p>
-                </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* School Profile Tab */}
+        {/* Profile Tab */}
         <TabsContent value="profile">
           <Card>
             <CardHeader>
@@ -880,9 +837,18 @@ export default function SchoolDashboard() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-500">Contact Information</h3>
                     <div className="mt-2 space-y-2">
-                      <p><span className="font-medium">Principal:</span> {schoolProfile.principalName}</p>
-                      <p><span className="font-medium">Phone:</span> {schoolProfile.phone}</p>
-                      <p><span className="font-medium">Email:</span> {schoolProfile.email}</p>
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-gray-400" />
+                        <span>{schoolProfile.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-gray-400" />
+                        <span>{schoolProfile.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span>{schoolProfile.region}, {schoolProfile.city}</span>
+                      </div>
                     </div>
                   </div>
 
@@ -891,16 +857,6 @@ export default function SchoolDashboard() {
                     <div className="mt-2 space-y-2">
                       <p><span className="font-medium">Submission Deadline:</span> {format(new Date(schoolProfile.submissionDeadline), 'MMM dd, yyyy')}</p>
                       <p><span className="font-medium">Placement Release:</span> {format(new Date(schoolProfile.placementReleaseDate), 'MMM dd, yyyy')}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Submission Status</h3>
-                    <div className="mt-2 space-y-2">
-                      <p><span className="font-medium">Total Students:</span> {schoolProfile.totalStudents}</p>
-                      <p><span className="font-medium">Verified Students:</span> {schoolProfile.verifiedStudents}</p>
-                      <p><span className="font-medium">Submitted to EAES:</span> {schoolProfile.submittedStudents}</p>
-                      <p><span className="font-medium">Placements Released:</span> {placementsReleased ? 'Yes' : 'No'}</p>
                     </div>
                   </div>
                 </div>
@@ -927,7 +883,9 @@ export default function SchoolDashboard() {
                   <Input
                     id="fullname"
                     value={newStudent.fullname}
-                    onChange={(e) => handleInputChange('fullname', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("fullname", e.target.value)
+                    }
                     placeholder="John Doe"
                     required
                   />
@@ -938,7 +896,7 @@ export default function SchoolDashboard() {
                     id="email"
                     type="email"
                     value={newStudent.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     placeholder="john@example.com"
                     required
                   />
@@ -951,7 +909,7 @@ export default function SchoolDashboard() {
                   <Input
                     id="phone"
                     value={newStudent.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     placeholder="+251911234567"
                     required
                   />
@@ -961,7 +919,9 @@ export default function SchoolDashboard() {
                   <Input
                     id="nationalId"
                     value={newStudent.nationalId}
-                    onChange={(e) => handleInputChange('nationalId', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("nationalId", e.target.value)
+                    }
                     placeholder="123456789"
                     required
                   />
@@ -975,7 +935,9 @@ export default function SchoolDashboard() {
                     id="birthDate"
                     type="date"
                     value={newStudent.birthDate}
-                    onChange={(e) => handleInputChange('birthDate', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("birthDate", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -983,7 +945,9 @@ export default function SchoolDashboard() {
                   <Label htmlFor="academicYear">Academic Year *</Label>
                   <Select
                     value={newStudent.academicYear}
-                    onValueChange={(value) => handleInputChange('academicYear', value)}
+                    onValueChange={(value) =>
+                      handleInputChange("academicYear", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select year" />
@@ -1002,7 +966,9 @@ export default function SchoolDashboard() {
                   <Label htmlFor="gender">Gender *</Label>
                   <Select
                     value={newStudent.gender}
-                    onValueChange={(value) => handleInputChange('gender', value)}
+                    onValueChange={(value) =>
+                      handleInputChange("gender", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select gender" />
@@ -1022,11 +988,28 @@ export default function SchoolDashboard() {
                     min="0"
                     max="4"
                     value={newStudent.gpa}
-                    onChange={(e) => handleInputChange('gpa', e.target.value)}
+                    onChange={(e) => handleInputChange("gpa", e.target.value)}
                     placeholder="3.8"
                     required
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Temporary Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={newStudent.password}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
+                  placeholder="Create a temporary password"
+                  required
+                />
+                <p className="text-sm text-gray-500">
+                  Student will be prompted to change this on first login
+                </p>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -1034,7 +1017,9 @@ export default function SchoolDashboard() {
                   type="checkbox"
                   id="specialNeed"
                   checked={newStudent.specialNeed}
-                  onChange={(e) => handleInputChange('specialNeed', e.target.checked)}
+                  onChange={(e) =>
+                    handleInputChange("specialNeed", e.target.checked)
+                  }
                   className="h-4 w-4 rounded border-gray-300"
                 />
                 <Label htmlFor="specialNeed">Special Needs Student</Label>

@@ -4,21 +4,19 @@ import {
   limitRate,
   Router,
   status,
-  type CTXAddress,
-  type RouterContext,
   type SocketAddress,
 } from "@bepalo/router";
 import { Time } from "@bepalo/time";
+import { userRouter } from "./routes/api/user.route";
+import { isProduction, port, url, type CTXMain } from "./base";
+import { sessionRouter } from "./routes/api/session.route";
+import { populateDb } from "./db";
 
-const port = parseInt(Bun.env.BACKEND_PORT || "") || 4000;
-const url = Bun.env.URL || "http://localhost";
-const isProduction = Bun.env.NODE_ENV === "production";
-
-const router = new Router<RouterContext & CTXAddress>({
+const router = new Router<CTXMain>({
   defaultHeaders: [["x-powered-by", "@bepalo/router"]],
   defaultCatcher: isProduction
     ? undefined
-    : (req, ctx) => {
+    : (_req, ctx) => {
         if (!isProduction) {
           console.error(ctx.error);
         }
@@ -85,6 +83,9 @@ router.catch(
   },
 );
 
+router.append("/api/user", userRouter);
+router.append("/api/session", sessionRouter);
+
 Bun.serve({
   port,
   development: !isProduction,
@@ -95,5 +96,7 @@ Bun.serve({
     return router.respond(req, { address });
   },
 });
+
+populateDb();
 
 console.log(`Backend server listening on ${url}:${port}`);

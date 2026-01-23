@@ -136,7 +136,7 @@ export default function AboutPage() {
                             { metric: '487K+', label: 'Students Placed', color: 'bg-white/90' },
                             { metric: '94.8%', label: 'Success Rate', color: 'bg-white/90' },
                             { metric: '1,245', label: 'Schools Active', color: 'bg-white/90' },
-                            { metric: '12', label: 'Regions Served', color: 'bg-accent text-white' },
+                            { metric: '12', label: 'Regions Served', color: 'bg-white/90' },
                         ].map((item, idx) => (
                             <div key={idx} className={`${item.color} p-8 rounded-lg text-center`}>
                                 <div className={`text-4xl font-bold mb-2 ${item.color.includes('white') ? 'text-primary' : 'text-white'}`}>
@@ -204,10 +204,10 @@ export default function AboutPage() {
                         Be part of transforming student placement across Ethiopia. Start your journey with ChoiceX today.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button size="lg" className="bg-white text-primary hover:bg-white/90">
+                        {/* <Button size="lg" className="bg-white text-primary hover:bg-white/90">
                             Get Started
                             <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
+                        </Button> */}
                         <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10 bg-transparent">
                             Schedule Demo
                         </Button>
