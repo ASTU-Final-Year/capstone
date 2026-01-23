@@ -1,5 +1,9 @@
 import { Time } from "@bepalo/time";
 
+export const config = {
+  emailDomain: Bun.env.EMAIL_DOMAIN || "choicex.gov.et",
+};
+
 export const cacheConfig = {
   authTokenMaxAge: Time.for(1).Minutes,
   user: {
@@ -25,4 +29,10 @@ export const cacheConfig = {
 export const securityConfig = {
   saltRounds: parseInt(Bun.env.SALT_ROUNDS || "") || 0,
   sessionCookie: "sid",
+};
+
+export const dbConfig = {
+  databaseURL:
+    Bun.env.DATABASE_URL ||
+    "postgresql://postgres:postgres@localhost:5432/sturs",
 };
