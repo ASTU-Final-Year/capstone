@@ -38,13 +38,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 export default function UniversityDashboard() {
     const router = useRouter()
@@ -144,137 +145,137 @@ export default function UniversityDashboard() {
 
                         <div className="flex items-center gap-4">
                             <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="relative">
-                                <Bell className="w-4 h-4" />
-                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-96 max-h-[500px] overflow-y-auto">
-                                <DropdownMenuLabel className="flex justify-between items-center">
-                                <span>Notifications</span>
-                                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                                    Mark all as read
-                                </Button>
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                
-                                {/* Unread Notifications */}
-                                <div className="px-2 py-1">
-                                <div className="text-xs font-medium text-muted-foreground mb-2 px-2">UNREAD</div>
-                                {[
-                                    {
-                                    id: 1,
-                                    type: "new_application",
-                                    title: "New Application Received",
-                                    description: "Student: Michael Getachew (GPA: 3.8)",
-                                    time: "10 minutes ago",
-                                    read: false,
-                                    icon: UserPlus,
-                                    iconColor: "text-blue-500"
-                                    },
-                                    {
-                                    id: 2,
-                                    type: "placement_pending",
-                                    title: "Placement Decision Required",
-                                    description: "5 placements awaiting your review",
-                                    time: "1 hour ago",
-                                    read: false,
-                                    icon: FileText,
-                                    iconColor: "text-amber-500"
-                                    },
-                                    {
-                                    id: 3,
-                                    type: "deadline",
-                                    title: "Application Deadline Approaching",
-                                    description: "3 days left for 2024 applications",
-                                    time: "2 hours ago",
-                                    read: false,
-                                    icon: Calendar,
-                                    iconColor: "text-red-500"
-                                    }
-                                ].map((notification) => (
-                                    <DropdownMenuItem key={notification.id} className="py-3 px-2 cursor-pointer hover:bg-muted/50">
-                                    <div className="flex items-start gap-3 w-full">
-                                        <div className={`p-2 rounded-full bg-muted ${notification.iconColor.replace("text-", "bg-")}/10`}>
-                                        <notification.icon className={`w-4 h-4 ${notification.iconColor}`} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start">
-                                            <p className="font-medium text-sm">{notification.title}</p>
-                                            <span className="text-xs text-muted-foreground">{notification.time}</span>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground mt-1 truncate">{notification.description}</p>
-                                        </div>
-                                        {!notification.read && (
-                                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                                        )}
-                                    </div>
-                                    </DropdownMenuItem>
-                                ))}
-                                </div>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="relative">
+                                        <Bell className="w-4 h-4" />
+                                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-96 max-h-[500px] overflow-y-auto">
+                                    <DropdownMenuLabel className="flex justify-between items-center">
+                                        <span>Notifications</span>
+                                        <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                                            Mark all as read
+                                        </Button>
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
 
-                                <DropdownMenuSeparator />
-                                
-                                {/* Read Notifications */}
-                                <div className="px-2 py-1">
-                                <div className="text-xs font-medium text-muted-foreground mb-2 px-2">EARLIER</div>
-                                {[
-                                    {
-                                    id: 4,
-                                    type: "system",
-                                    title: "System Maintenance",
-                                    description: "Scheduled maintenance on Saturday, 2 AM",
-                                    time: "Yesterday",
-                                    read: true,
-                                    icon: Info,
-                                    iconColor: "text-gray-500"
-                                    },
-                                    {
-                                    id: 5,
-                                    type: "capacity",
-                                    title: "Capacity Alert",
-                                    description: "Engineering program at 92% capacity",
-                                    time: "2 days ago",
-                                    read: true,
-                                    icon: AlertCircle,
-                                    iconColor: "text-orange-500"
-                                    },
-                                    {
-                                    id: 6,
-                                    type: "application",
-                                    title: "Application Processed",
-                                    description: "50 applications processed automatically",
-                                    time: "3 days ago",
-                                    read: true,
-                                    icon: Check,
-                                    iconColor: "text-green-500"
-                                    }
-                                ].map((notification) => (
-                                    <DropdownMenuItem key={notification.id} className="py-3 px-2 cursor-pointer hover:bg-muted/50">
-                                    <div className="flex items-start gap-3 w-full opacity-70">
-                                        <div className={`p-2 rounded-full bg-muted ${notification.iconColor.replace("text-", "bg-")}/10`}>
-                                        <notification.icon className={`w-4 h-4 ${notification.iconColor}`} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start">
-                                            <p className="font-medium text-sm">{notification.title}</p>
-                                            <span className="text-xs text-muted-foreground">{notification.time}</span>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground mt-1 truncate">{notification.description}</p>
-                                        </div>
+                                    {/* Unread Notifications */}
+                                    <div className="px-2 py-1">
+                                        <div className="text-xs font-medium text-muted-foreground mb-2 px-2">UNREAD</div>
+                                        {[
+                                            {
+                                                id: 1,
+                                                type: "new_application",
+                                                title: "New Application Received",
+                                                description: "Student: Michael Getachew (GPA: 3.8)",
+                                                time: "10 minutes ago",
+                                                read: false,
+                                                icon: UserPlus,
+                                                iconColor: "text-blue-500"
+                                            },
+                                            {
+                                                id: 2,
+                                                type: "placement_pending",
+                                                title: "Placement Decision Required",
+                                                description: "5 placements awaiting your review",
+                                                time: "1 hour ago",
+                                                read: false,
+                                                icon: FileText,
+                                                iconColor: "text-amber-500"
+                                            },
+                                            {
+                                                id: 3,
+                                                type: "deadline",
+                                                title: "Application Deadline Approaching",
+                                                description: "3 days left for 2024 applications",
+                                                time: "2 hours ago",
+                                                read: false,
+                                                icon: Calendar,
+                                                iconColor: "text-red-500"
+                                            }
+                                        ].map((notification) => (
+                                            <DropdownMenuItem key={notification.id} className="py-3 px-2 cursor-pointer hover:bg-muted/50">
+                                                <div className="flex items-start gap-3 w-full">
+                                                    <div className={`p-2 rounded-full bg-muted ${notification.iconColor.replace("text-", "bg-")}/10`}>
+                                                        <notification.icon className={`w-4 h-4 ${notification.iconColor}`} />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex justify-between items-start">
+                                                            <p className="font-medium text-sm">{notification.title}</p>
+                                                            <span className="text-xs text-muted-foreground">{notification.time}</span>
+                                                        </div>
+                                                        <p className="text-sm text-muted-foreground mt-1 truncate">{notification.description}</p>
+                                                    </div>
+                                                    {!notification.read && (
+                                                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                                                    )}
+                                                </div>
+                                            </DropdownMenuItem>
+                                        ))}
                                     </div>
-                                    </DropdownMenuItem>
-                                ))}
-                                </div>
 
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="justify-center text-sm py-2 cursor-pointer">
-                                <Button variant="ghost" size="sm" className="w-full">
-                                    View All Notifications
-                                </Button>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
+                                    <DropdownMenuSeparator />
+
+                                    {/* Read Notifications */}
+                                    <div className="px-2 py-1">
+                                        <div className="text-xs font-medium text-muted-foreground mb-2 px-2">EARLIER</div>
+                                        {[
+                                            {
+                                                id: 4,
+                                                type: "system",
+                                                title: "System Maintenance",
+                                                description: "Scheduled maintenance on Saturday, 2 AM",
+                                                time: "Yesterday",
+                                                read: true,
+                                                icon: Info,
+                                                iconColor: "text-gray-500"
+                                            },
+                                            {
+                                                id: 5,
+                                                type: "capacity",
+                                                title: "Capacity Alert",
+                                                description: "Engineering program at 92% capacity",
+                                                time: "2 days ago",
+                                                read: true,
+                                                icon: AlertCircle,
+                                                iconColor: "text-orange-500"
+                                            },
+                                            {
+                                                id: 6,
+                                                type: "application",
+                                                title: "Application Processed",
+                                                description: "50 applications processed automatically",
+                                                time: "3 days ago",
+                                                read: true,
+                                                icon: Check,
+                                                iconColor: "text-green-500"
+                                            }
+                                        ].map((notification) => (
+                                            <DropdownMenuItem key={notification.id} className="py-3 px-2 cursor-pointer hover:bg-muted/50">
+                                                <div className="flex items-start gap-3 w-full opacity-70">
+                                                    <div className={`p-2 rounded-full bg-muted ${notification.iconColor.replace("text-", "bg-")}/10`}>
+                                                        <notification.icon className={`w-4 h-4 ${notification.iconColor}`} />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex justify-between items-start">
+                                                            <p className="font-medium text-sm">{notification.title}</p>
+                                                            <span className="text-xs text-muted-foreground">{notification.time}</span>
+                                                        </div>
+                                                        <p className="text-sm text-muted-foreground mt-1 truncate">{notification.description}</p>
+                                                    </div>
+                                                </div>
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </div>
+
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem className="justify-center text-sm py-2 cursor-pointer">
+                                        <Button variant="ghost" size="sm" className="w-full">
+                                            View All Notifications
+                                        </Button>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
                             </DropdownMenu>
                             <Avatar>
                                 <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${university.abbreviation}`} />
@@ -463,8 +464,8 @@ export default function UniversityDashboard() {
                                     <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                                         <div className="text-center md:text-left">
                                             <Avatar className="w-24 h-24 mx-auto md:mx-0">
-                                                <AvatarImage 
-                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${university.abbreviation}-admin`} 
+                                                <AvatarImage
+                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${university.abbreviation}-admin`}
                                                 />
                                                 <AvatarFallback>{university.abbreviation}</AvatarFallback>
                                             </Avatar>
@@ -472,7 +473,7 @@ export default function UniversityDashboard() {
                                                 Change Photo
                                             </Button>
                                         </div>
-                                        
+
                                         <div className="flex-1 space-y-2">
                                             <div>
                                                 <h3 className="text-xl font-bold">University Administrator</h3>
