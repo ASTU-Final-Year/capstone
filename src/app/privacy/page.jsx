@@ -1,17 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp, Shield, Lock, Eye, Database, UserCheck, FileText } from "lucide-react"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  Lock,
+  Eye,
+  Database,
+  UserCheck,
+  FileText,
+} from "lucide-react";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 export default function PrivacyPolicyPage() {
-  const [openSection, setOpenSection] = useState<string | null>("data-collection")
+  const [openSection, setOpenSection] = useState("data-collection");
 
   const toggleSection = (section) => {
-    setOpenSection(openSection === section ? null : section)
-  }
+    setOpenSection(openSection === section ? null : section);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,9 +33,12 @@ export default function PrivacyPolicyPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6">
             <Shield className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Privacy Policy</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            Privacy Policy
+          </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Last Updated: December 1, 2024. This Privacy Policy explains how ChoiceX collects, uses, and protects your information.
+            Last Updated: December 1, 2024. This Privacy Policy explains how
+            ChoiceX collects, uses, and protects your information.
           </p>
         </div>
       </section>
@@ -36,9 +48,12 @@ export default function PrivacyPolicyPage() {
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <div className="bg-card border border-border rounded-xl p-8 mb-8">
             <p className="text-muted-foreground mb-6">
-              ChoiceX ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy applies to all users of the ChoiceX platform, including students, schools, universities, and government officials.
+              ChoiceX ("we", "our", or "us") is committed to protecting your
+              privacy. This Privacy Policy applies to all users of the ChoiceX
+              platform, including students, schools, universities, and
+              government officials.
             </p>
-            
+
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="text-center p-4 bg-background rounded-lg">
                 <Lock className="w-6 h-6 text-primary mx-auto mb-2" />
@@ -62,14 +77,19 @@ export default function PrivacyPolicyPage() {
           {/* Expandable Sections */}
           <div className="space-y-4">
             {sections.map((section) => (
-              <div key={section.id} className="border border-border rounded-lg overflow-hidden">
+              <div
+                key={section.id}
+                className="border border-border rounded-lg overflow-hidden"
+              >
                 <button
                   onClick={() => toggleSection(section.id)}
                   className="w-full flex items-center justify-between p-6 text-left bg-card hover:bg-card/50 transition"
                 >
                   <div className="flex items-center gap-4">
                     <section.icon className="w-5 h-5 text-primary" />
-                    <h3 className="text-xl font-bold text-foreground">{section.title}</h3>
+                    <h3 className="text-xl font-bold text-foreground">
+                      {section.title}
+                    </h3>
                   </div>
                   {openSection === section.id ? (
                     <ChevronUp className="w-5 h-5 text-muted-foreground" />
@@ -77,16 +97,20 @@ export default function PrivacyPolicyPage() {
                     <ChevronDown className="w-5 h-5 text-muted-foreground" />
                   )}
                 </button>
-                
+
                 {openSection === section.id && (
                   <div className="p-6 pt-2 bg-background border-t border-border">
                     <div className="space-y-4">
                       {section.content.map((content, idx) => (
                         <div key={idx}>
                           {content.title && (
-                            <h4 className="font-bold text-foreground mb-2">{content.title}</h4>
+                            <h4 className="font-bold text-foreground mb-2">
+                              {content.title}
+                            </h4>
                           )}
-                          <p className="text-muted-foreground">{content.text}</p>
+                          <p className="text-muted-foreground">
+                            {content.text}
+                          </p>
                           {content.list && (
                             <ul className="mt-2 space-y-1 text-muted-foreground">
                               {content.list.map((item, i) => (
@@ -112,26 +136,40 @@ export default function PrivacyPolicyPage() {
               <Database className="w-6 h-6 text-primary" />
               Data We Collect
             </h3>
-            
+
             <div className="border border-border rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-card">
                     <tr>
-                      <th className="text-left p-4 font-bold text-foreground">Data Type</th>
-                      <th className="text-left p-4 font-bold text-foreground">Purpose</th>
-                      <th className="text-left p-4 font-bold text-foreground">Retention</th>
+                      <th className="text-left p-4 font-bold text-foreground">
+                        Data Type
+                      </th>
+                      <th className="text-left p-4 font-bold text-foreground">
+                        Purpose
+                      </th>
+                      <th className="text-left p-4 font-bold text-foreground">
+                        Retention
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {dataCollection.map((item, idx) => (
                       <tr key={idx} className="hover:bg-card/50 transition">
                         <td className="p-4">
-                          <p className="font-medium text-foreground">{item.type}</p>
-                          <p className="text-sm text-muted-foreground">{item.examples}</p>
+                          <p className="font-medium text-foreground">
+                            {item.type}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {item.examples}
+                          </p>
                         </td>
-                        <td className="p-4 text-muted-foreground">{item.purpose}</td>
-                        <td className="p-4 text-muted-foreground">{item.retention}</td>
+                        <td className="p-4 text-muted-foreground">
+                          {item.purpose}
+                        </td>
+                        <td className="p-4 text-muted-foreground">
+                          {item.retention}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -142,9 +180,12 @@ export default function PrivacyPolicyPage() {
 
           {/* Contact Information */}
           <div className="mt-12 bg-card border border-border rounded-xl p-8">
-            <h3 className="text-2xl font-bold text-foreground mb-4">Contact Us</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-4">
+              Contact Us
+            </h3>
             <p className="text-muted-foreground mb-6">
-              If you have questions about this Privacy Policy or our data practices, please contact our Data Protection Officer:
+              If you have questions about this Privacy Policy or our data
+              practices, please contact our Data Protection Officer:
             </p>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
@@ -165,8 +206,10 @@ export default function PrivacyPolicyPage() {
           {/* Acknowledgment */}
           <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-lg">
             <p className="text-foreground">
-              <strong>Note:</strong> By using the ChoiceX platform, you acknowledge that you have read and understood this Privacy Policy. 
-              We may update this policy periodically, and we will notify users of significant changes.
+              <strong>Note:</strong> By using the ChoiceX platform, you
+              acknowledge that you have read and understood this Privacy Policy.
+              We may update this policy periodically, and we will notify users
+              of significant changes.
             </p>
           </div>
         </div>
@@ -175,7 +218,7 @@ export default function PrivacyPolicyPage() {
       {/* Footer */}
       <Footer />
     </div>
-  )
+  );
 }
 
 const sections = [
@@ -192,8 +235,8 @@ const sections = [
           "National identification numbers",
           "Date of birth and gender",
           "Academic records and GPA",
-          "School and university preferences"
-        ]
+          "School and university preferences",
+        ],
       },
       {
         title: "Educational Data",
@@ -202,8 +245,8 @@ const sections = [
           "Academic year and specialization",
           "School information and performance",
           "University choices and rankings",
-          "Placement results and status"
-        ]
+          "Placement results and status",
+        ],
       },
       {
         title: "Technical Information",
@@ -212,10 +255,10 @@ const sections = [
           "IP address and device information",
           "Browser type and version",
           "Pages visited and time spent",
-          "Cookies and usage data"
-        ]
-      }
-    ]
+          "Cookies and usage data",
+        ],
+      },
+    ],
   },
   {
     id: "data-use",
@@ -223,7 +266,7 @@ const sections = [
     icon: Eye,
     content: [
       {
-        text: "We use the collected information for the following purposes:"
+        text: "We use the collected information for the following purposes:",
       },
       {
         title: "Platform Operation",
@@ -232,8 +275,8 @@ const sections = [
           "Processing student applications",
           "Managing school and university data",
           "Facilitating the placement algorithm",
-          "Generating reports and analytics"
-        ]
+          "Generating reports and analytics",
+        ],
       },
       {
         title: "Communication",
@@ -242,8 +285,8 @@ const sections = [
           "Application status updates",
           "Important system announcements",
           "Educational opportunities",
-          "Policy changes"
-        ]
+          "Policy changes",
+        ],
       },
       {
         title: "Improvement & Research",
@@ -252,10 +295,10 @@ const sections = [
           "Analyzing usage patterns",
           "Improving placement algorithms",
           "Conducting educational research",
-          "Developing new features"
-        ]
-      }
-    ]
+          "Developing new features",
+        ],
+      },
+    ],
   },
   {
     id: "data-sharing",
@@ -263,7 +306,7 @@ const sections = [
     icon: UserCheck,
     content: [
       {
-        text: "We may share your information in the following circumstances:"
+        text: "We may share your information in the following circumstances:",
       },
       {
         title: "With Educational Institutions",
@@ -272,8 +315,8 @@ const sections = [
           "Schools for verification and enrollment",
           "Universities for placement processing",
           "Regional education bureaus",
-          "Ministry of Education officials"
-        ]
+          "Ministry of Education officials",
+        ],
       },
       {
         title: "Legal Requirements",
@@ -282,8 +325,8 @@ const sections = [
           "To comply with legal obligations",
           "To protect rights and safety",
           "To prevent fraud or abuse",
-          "For government reporting requirements"
-        ]
+          "For government reporting requirements",
+        ],
       },
       {
         title: "Service Providers",
@@ -292,10 +335,10 @@ const sections = [
           "Host our platform and databases",
           "Provide security services",
           "Send communications",
-          "Analyze platform usage"
-        ]
-      }
-    ]
+          "Analyze platform usage",
+        ],
+      },
+    ],
   },
   {
     id: "data-security",
@@ -303,7 +346,7 @@ const sections = [
     icon: Lock,
     content: [
       {
-        text: "We implement robust security measures to protect your information:"
+        text: "We implement robust security measures to protect your information:",
       },
       {
         title: "Technical Safeguards",
@@ -311,8 +354,8 @@ const sections = [
           "Encryption of sensitive data in transit and at rest",
           "Regular security audits and vulnerability assessments",
           "Secure server infrastructure with access controls",
-          "Regular data backups and disaster recovery plans"
-        ]
+          "Regular data backups and disaster recovery plans",
+        ],
       },
       {
         title: "Administrative Controls",
@@ -320,8 +363,8 @@ const sections = [
           "Strict access controls based on user roles",
           "Regular staff training on data protection",
           "Incident response procedures",
-          "Compliance monitoring and reporting"
-        ]
+          "Compliance monitoring and reporting",
+        ],
       },
       {
         title: "User Responsibilities",
@@ -330,10 +373,10 @@ const sections = [
           "Keep login credentials confidential",
           "Use strong, unique passwords",
           "Log out after using shared devices",
-          "Report any suspicious activity immediately"
-        ]
-      }
-    ]
+          "Report any suspicious activity immediately",
+        ],
+      },
+    ],
   },
   {
     id: "user-rights",
@@ -341,7 +384,7 @@ const sections = [
     icon: Shield,
     content: [
       {
-        text: "You have certain rights regarding your personal information:"
+        text: "You have certain rights regarding your personal information:",
       },
       {
         title: "Access & Correction",
@@ -349,8 +392,8 @@ const sections = [
           "Access your personal information",
           "Request corrections to inaccurate data",
           "View your placement history",
-          "Download your application data"
-        ]
+          "Download your application data",
+        ],
       },
       {
         title: "Control & Preferences",
@@ -358,8 +401,8 @@ const sections = [
           "Opt-out of non-essential communications",
           "Request data portability",
           "Withdraw consent where applicable",
-          "Manage cookie preferences"
-        ]
+          "Manage cookie preferences",
+        ],
       },
       {
         title: "Complaints & Questions",
@@ -368,10 +411,10 @@ const sections = [
           "Contacting our Data Protection Officer",
           "Using platform privacy controls",
           "Submitting formal requests",
-          "Filing complaints with regulatory authorities"
-        ]
-      }
-    ]
+          "Filing complaints with regulatory authorities",
+        ],
+      },
+    ],
   },
   {
     id: "retention",
@@ -379,7 +422,7 @@ const sections = [
     icon: FileText,
     content: [
       {
-        text: "We retain your information for specific periods based on legal and operational requirements:"
+        text: "We retain your information for specific periods based on legal and operational requirements:",
       },
       {
         title: "Retention Periods",
@@ -387,8 +430,8 @@ const sections = [
           "Active student records: 7 years after graduation",
           "Application data: 5 years after placement",
           "User accounts: Until deletion request",
-          "Analytics data: 3 years maximum"
-        ]
+          "Analytics data: 3 years maximum",
+        ],
       },
       {
         title: "Deletion Process",
@@ -396,8 +439,8 @@ const sections = [
           "Secure deletion of personal data",
           "Anonymization of statistical data",
           "Archive for legal requirements",
-          "Notification of data removal"
-        ]
+          "Notification of data removal",
+        ],
       },
       {
         title: "Legal Holds",
@@ -406,42 +449,42 @@ const sections = [
           "Pending legal proceedings",
           "Government investigations",
           "Academic research projects",
-          "Historical archiving purposes"
-        ]
-      }
-    ]
-  }
-]
+          "Historical archiving purposes",
+        ],
+      },
+    ],
+  },
+];
 
 const dataCollection = [
   {
     type: "Personal Identification",
     examples: "Name, Email, Phone, National ID",
     purpose: "User authentication and communication",
-    retention: "7 years after last activity"
+    retention: "7 years after last activity",
   },
   {
     type: "Educational Records",
     examples: "GPA, Academic year, School history",
     purpose: "Placement processing and verification",
-    retention: "10 years for archival purposes"
+    retention: "10 years for archival purposes",
   },
   {
     type: "Preference Data",
     examples: "University choices, Rankings",
     purpose: "Algorithm processing and placement",
-    retention: "5 years after placement"
+    retention: "5 years after placement",
   },
   {
     type: "Technical Data",
     examples: "IP address, Device info, Cookies",
     purpose: "Security, analytics, and improvement",
-    retention: "3 years maximum"
+    retention: "3 years maximum",
   },
   {
     type: "Communication Logs",
     examples: "Emails, Notifications, Support tickets",
     purpose: "Service improvement and records",
-    retention: "5 years"
-  }
-]
+    retention: "5 years",
+  },
+];
