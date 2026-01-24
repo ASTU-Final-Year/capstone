@@ -72,9 +72,9 @@ export const validateSession = async (
 };
 
 // Get user by session
-export const getUserBySession = async (
+export const getSessionAndUser = async (
   sessionId: string,
-): Promise<User | null> => {
+): Promise<{ session: Session; user: User } | null> => {
   const session = await validateSession(sessionId);
   if (!session) {
     return null;
@@ -82,7 +82,7 @@ export const getUserBySession = async (
   // Try to get user from cache
   const cachedUser = userCache.get(session.userId)?.value;
   if (cachedUser) {
-    return cachedUser;
+    return { session, user: cachedUser };
   }
   // If not in cache, fetch from database
   const [user] = await db
@@ -92,6 +92,7 @@ export const getUserBySession = async (
       email: users.email,
       gender: users.gender,
       phone: users.phone,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })
@@ -100,7 +101,7 @@ export const getUserBySession = async (
   if (!user) return null;
   // Cache the user (without password)
   userCache.set(session.userId, user);
-  return user;
+  return { session, user };
 };
 
 // Get user and session by session

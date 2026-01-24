@@ -858,41 +858,11 @@ export default function CityDashboard() {
                                                     {((schools.filter(s => s.type === "international").length / schools.length) * 100).toFixed(1)}%
                                                 </div>
                                             </div>
+
                                         </div>
+
                                     </div>
 
-                                    {/* Quick Statistics */}
-                                    <div className="grid md:grid-cols-3 gap-4">
-                                        <div className="text-center p-4 border rounded-lg">
-                                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                <BarChart3 className="w-5 h-5 text-blue-600" />
-                                            </div>
-                                            <p className="text-sm text-gray-500">Average Students per School</p>
-                                            <p className="text-xl font-bold mt-1">
-                                                {(city.totalStudents / city.totalSchools).toLocaleString()}
-                                            </p>
-                                        </div>
-
-                                        <div className="text-center p-4 border rounded-lg">
-                                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                <Target className="w-5 h-5 text-green-600" />
-                                            </div>
-                                            <p className="text-sm text-gray-500">Admin Coverage Rate</p>
-                                            <p className="text-xl font-bold mt-1">
-                                                {((new Set(schoolAdmins.map(a => a.schoolId)).size / schools.length) * 100).toFixed(0)}%
-                                            </p>
-                                            <p className="text-xs text-gray-500 mt-1">Schools with admins</p>
-                                        </div>
-
-                                        <div className="text-center p-4 border rounded-lg">
-                                            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                <PieChart className="w-5 h-5 text-purple-600" />
-                                            </div>
-                                            <p className="text-sm text-gray-500">Teacher-Student Ratio</p>
-                                            <p className="text-xl font-bold mt-1">1:38</p>
-                                            <p className="text-xs text-gray-500 mt-1">Average ratio</p>
-                                        </div>
-                                    </div>
 
                                     {/* Export Options */}
                                     <Card>

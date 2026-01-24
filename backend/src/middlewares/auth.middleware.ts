@@ -60,6 +60,7 @@ export const authenticate = (
           : json({ error: "Invalid or expired session" }, { status: 401 });
       }
       ctx.session = userAndSession.session;
+      ctx.session.user = ctx.user;
       ctx.user = userAndSession.user;
     }
   };
@@ -95,8 +96,7 @@ export const authorize = (
         ? undefined
         : json({ error: "Authentication required" }, { status: 401 });
     }
-    const adminUser = await getUserWithAdminDetails(user.id);
-    const role = adminUser.admin?.role;
+    const role = user.role;
     const userPermissions = role && PERMISSIONS[role];
     if (roles) {
       if (!roles.includes(role as Role)) {

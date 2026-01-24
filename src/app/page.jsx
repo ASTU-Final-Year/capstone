@@ -1,12 +1,31 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, BookOpen, Users, Zap, BarChart3, TrendingUp, CheckCircle2 } from "lucide-react"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts"
-import Image from "next/image"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  BookOpen,
+  Users,
+  Zap,
+  BarChart3,
+  TrendingUp,
+  CheckCircle2,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
+import Image from "next/image";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
@@ -21,11 +40,14 @@ export default function LandingPage() {
               Transform Education Placement
             </h1>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Digitize the entire student placement process. Connect schools, students, and government in one unified
-              platform.
+              Digitize the entire student placement process. Connect schools,
+              students, and government in one unified platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
                 Start Your Journey
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -47,19 +69,30 @@ export default function LandingPage() {
 
       <section id="analytics" className="bg-card border-y border-border py-24">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">2025 Placement Overview</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">
+            2025 Placement Overview
+          </h2>
           <p className="text-lg text-muted-foreground mb-16">
-            See the impact of intelligent placement across Ethiopia's education system
+            See the impact of intelligent placement across Ethiopia's education
+            system
           </p>
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Bar Chart - Placements by Region */}
             <div className="bg-background border border-border rounded-lg p-6">
-              <h3 className="text-lg font-bold text-foreground mb-6">Student Placements by Region</h3>
+              <h3 className="text-lg font-bold text-foreground mb-6">
+                Student Placements by Region
+              </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={placementByRegion}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="region" stroke="var(--color-muted-foreground)" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--color-border)"
+                  />
+                  <XAxis
+                    dataKey="region"
+                    stroke="var(--color-muted-foreground)"
+                  />
                   <YAxis stroke="var(--color-muted-foreground)" />
                   <Tooltip
                     contentStyle={{
@@ -68,18 +101,30 @@ export default function LandingPage() {
                     }}
                     cursor={{ fill: "var(--color-primary)" }}
                   />
-                  <Bar dataKey="placements" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
+                  <Bar
+                    dataKey="placements"
+                    fill="var(--color-primary)"
+                    radius={[8, 8, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             {/* Line Chart - School Choices */}
             <div className="bg-background border border-border rounded-lg p-6">
-              <h3 className="text-lg font-bold text-foreground mb-6">Student Preferences Distribution</h3>
+              <h3 className="text-lg font-bold text-foreground mb-6">
+                Student Preferences Distribution
+              </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={choicesDistribution}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="choice" stroke="var(--color-muted-foreground)" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--color-border)"
+                  />
+                  <XAxis
+                    dataKey="choice"
+                    stroke="var(--color-muted-foreground)"
+                  />
                   <YAxis stroke="var(--color-muted-foreground)" />
                   <Tooltip
                     contentStyle={{
@@ -102,13 +147,20 @@ export default function LandingPage() {
           {/* Stats Grid */}
           <div className="grid md:grid-cols-4 gap-6 mt-12">
             {stats.map((stat, idx) => (
-              <div key={idx} className="bg-background border border-border rounded-lg p-6">
+              <div
+                key={idx}
+                className="bg-background border border-border rounded-lg p-6"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm text-muted-foreground">{stat.label}</p>
                   <TrendingUp className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-3xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-xs text-muted-foreground mt-2">{stat.change}</p>
+                <p className="text-3xl font-bold text-foreground">
+                  {stat.value}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {stat.change}
+                </p>
               </div>
             ))}
           </div>
@@ -117,39 +169,60 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="max-w-7xl mx-auto px-6 py-24">
-        <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">Powerful Features</h2>
+        <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">
+          Powerful Features
+        </h2>
         <p className="text-lg text-muted-foreground mb-16 max-w-2xl">
-          Everything you need to streamline student placement across your education system
+          Everything you need to streamline student placement across your
+          education system
         </p>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, idx) => (
-            <div key={idx} className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition">
+            <div
+              key={idx}
+              className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition"
+            >
               <feature.icon className="w-8 h-8 text-primary mb-4" />
-              <h3 className="font-bold text-lg text-foreground mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground text-sm">{feature.description}</p>
+              <h3 className="font-bold text-lg text-foreground mb-2">
+                {feature.title}
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
       <section id="activity" className="max-w-7xl mx-auto px-6 py-24">
-        <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">Recent Activity</h2>
+        <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">
+          Recent Activity
+        </h2>
         <p className="text-lg text-muted-foreground mb-12">
           Real-time updates from schools and students across the platform
         </p>
 
         <div className="space-y-4">
           {activities.map((activity, idx) => (
-            <div key={idx} className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition">
+            <div
+              key={idx}
+              className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition"
+            >
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                   <activity.icon className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-foreground font-semibold">{activity.title}</p>
-                  <p className="text-muted-foreground text-sm mt-1">{activity.description}</p>
-                  <p className="text-xs text-muted-foreground mt-3">{activity.timestamp}</p>
+                  <p className="text-foreground font-semibold">
+                    {activity.title}
+                  </p>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {activity.description}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    {activity.timestamp}
+                  </p>
                 </div>
               </div>
             </div>
@@ -160,16 +233,23 @@ export default function LandingPage() {
       {/* Stakeholders Section */}
       <section className="bg-card border-y border-border py-24 mt-24">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">Built for Everyone</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">
+            Built for Everyone
+          </h2>
           <p className="text-lg text-muted-foreground mb-16">
             Tailored experiences for each stakeholder in the education system
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stakeholders.map((stakeholder, idx) => (
-              <div key={idx} className="bg-background border border-border rounded-lg p-6">
+              <div
+                key={idx}
+                className="bg-background border border-border rounded-lg p-6"
+              >
                 <div className="text-3xl mb-4">{stakeholder.icon}</div>
-                <h3 className="font-bold text-lg text-foreground mb-2">{stakeholder.name}</h3>
+                <h3 className="font-bold text-lg text-foreground mb-2">
+                  {stakeholder.name}
+                </h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   {stakeholder.benefits.map((benefit, i) => (
                     <li key={i} className="flex items-start gap-2">
@@ -191,10 +271,14 @@ export default function LandingPage() {
             Ready to Transform Your Education System?
           </h2>
           <p className="text-primary-foreground/80 text-lg mb-8 max-w-2xl mx-auto">
-            Join schools and education ministries modernizing student placement. Get started in minutes.
+            Join schools and education ministries modernizing student placement.
+            Get started in minutes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
+            <Button
+              size="lg"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+            >
               Start Free Trial
             </Button>
             <Button
@@ -211,18 +295,20 @@ export default function LandingPage() {
       {/* Footer */}
       <Footer />
     </div>
-  )
+  );
 }
 
 const features = [
   {
     title: "School Management",
-    description: "Register schools, manage student data, and track placements in real-time",
+    description:
+      "Register schools, manage student data, and track placements in real-time",
     icon: BookOpen,
   },
   {
     title: "Student Portal",
-    description: "Self-registration, document verification, and placement status tracking",
+    description:
+      "Self-registration, document verification, and placement status tracking",
     icon: Users,
   },
   {
@@ -232,21 +318,30 @@ const features = [
   },
   {
     title: "Analytics & Reports",
-    description: "Comprehensive dashboards for monitoring system performance and outcomes",
+    description:
+      "Comprehensive dashboards for monitoring system performance and outcomes",
     icon: BarChart3,
   },
-]
+];
 
 const steps = [
   {
     title: "Schools Register",
     description: "Schools create accounts and verify credentials",
-    details: ["Upload school details", "Provide capacity information", "Set entry requirements"],
+    details: [
+      "Upload school details",
+      "Provide capacity information",
+      "Set entry requirements",
+    ],
   },
   {
     title: "Students Apply",
     description: "Students self-register and express preferences",
-    details: ["Complete registration", "Upload documents", "Select school choices"],
+    details: [
+      "Complete registration",
+      "Upload documents",
+      "Select school choices",
+    ],
   },
   {
     title: "MoE Review",
@@ -258,7 +353,7 @@ const steps = [
     description: "Results processed and placements finalized",
     details: ["Run algorithm", "Generate results", "Send notifications"],
   },
-]
+];
 
 const stats = [
   {
@@ -281,7 +376,7 @@ const stats = [
     value: "2.3 days",
     change: "Average from submission to result",
   },
-]
+];
 
 const placementByRegion = [
   { region: "Addis Ababa", placements: 45200 },
@@ -290,7 +385,7 @@ const placementByRegion = [
   { region: "SNNPR", placements: 68300 },
   { region: "Tigray", placements: 54200 },
   { region: "Others", placements: 148534 },
-]
+];
 
 const choicesDistribution = [
   { choice: "1st Choice", students: 68400 },
@@ -298,7 +393,7 @@ const choicesDistribution = [
   { choice: "3rd Choice", students: 42100 },
   { choice: "4th Choice", students: 31800 },
   { choice: "5th Choice", students: 28340 },
-]
+];
 
 const activities = [
   {
@@ -331,7 +426,7 @@ const activities = [
     timestamp: "1 day ago",
     icon: TrendingUp,
   },
-]
+];
 
 const stakeholders = [
   {
@@ -354,4 +449,4 @@ const stakeholders = [
     icon: "📋",
     benefits: ["Process results", "Manage placements", "Send notifications"],
   },
-]
+];

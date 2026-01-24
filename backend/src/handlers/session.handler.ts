@@ -10,7 +10,7 @@ import { isProduction, type CTXMain } from "../base";
 import type { CTXBodyLogin } from "../routes/api/session.route";
 import {
   deleteSession as servDeleteSession,
-  createSession as servCreateSessio,
+  createSession as servCreateSession,
 } from "../services/session.service";
 import { authenticateUser } from "../services/user.service";
 import { Time } from "@bepalo/time";
@@ -23,9 +23,9 @@ export const createSession =
     if (!user) {
       return json({ error: "Invalid login" }, { status: 401 });
     }
-    const sessionId = await servCreateSessio(user.id);
+    const sessionId = await servCreateSession(user.id);
     return json(
-      { sessionId, success: true },
+      { sessionId, user, success: true },
       {
         status: 200,
         headers: [

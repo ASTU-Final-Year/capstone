@@ -1,11 +1,13 @@
 import {
+  Handler,
+  json,
   parseBody,
   parseCookie,
   Router,
   type CTXBody,
   type CTXCookie,
 } from "@bepalo/router";
-import z from "zod";
+import z, { success } from "zod";
 import { type CTXMain } from "../../base";
 import {
   createSession,
@@ -14,10 +16,18 @@ import {
 } from "../../handlers/session.handler";
 import { authenticate } from "../../middlewares/auth.middleware";
 
-const loginSchema = z.object({
-  email: z.email(),
-  password: z.string().min(6),
-});
+const validateLogin =
+  (): Handler<CTXBody> =>
+  (req, { body }) => {
+    try {
+      z.object({
+        email: z.email(),
+        password: z.string().min(6),
+      }).parse(body);
+    } catch {
+      return json({ error: "Invalid credentials" }, { status: 401 });
+    }
+  };
 
 export interface CTXBodyLogin {
   body: {
@@ -42,9 +52,7 @@ sessionRouter.handle<CTXCookie & CTXBodyLogin>(
       accept: ["application/x-www-form-urlencoded", "application/json"],
       maxSize: 1024, // 1KB
     }),
-    (_req, { body }) => {
-      loginSchema.parse(body);
-    },
+    validateLogin(),
     createSession(),
   ],
 );

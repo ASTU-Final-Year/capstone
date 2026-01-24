@@ -1,3 +1,4 @@
+// admin.service.ts
 import { and, eq } from "drizzle-orm";
 import { Admin, Role, User } from "../base";
 import { db } from "../db";
@@ -45,32 +46,39 @@ export const getAdminById = async (adminId: string): Promise<Admin | null> => {
   };
 };
 
-// Check if user is admin of specific type
+// Check if user has admin role (now checks users.role instead of admins.role)
 export const isUserAdmin = async (
   userId: string,
   role?: Role,
 ): Promise<boolean> => {
+  const result = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (result.length === 0) return false;
+
+  const userRole = result[0].role as Role;
+
   if (role) {
-    const result = await db
-      .select()
-      .from(admins)
-      .where(and(eq(admins.userId, userId), eq(admins.role, role)))
-      .limit(1);
-    return result.length > 0;
+    return userRole === role;
   } else {
-    const result = await db
-      .select()
-      .from(admins)
-      .where(eq(admins.userId, userId))
-      .limit(1);
-    return result.length > 0;
+    // Check if user has any admin role
+    const adminRoles: Role[] = [
+      "super_admin",
+      "region_admin",
+      "city_admin",
+      "school_admin",
+      "university_admin",
+    ];
+    return adminRoles.includes(userRole);
   }
 };
 
 // Create a new admin
 export const createAdmin = async (
   userId: string,
-  role: Role,
   targetId: string,
 ): Promise<Admin> => {
   const [admin] = await db
@@ -78,7 +86,6 @@ export const createAdmin = async (
     .values({
       id: crypto.randomUUID(),
       userId,
-      role,
       targetId,
     })
     .returning();
@@ -93,10 +100,10 @@ export const deleteAdmin = async (adminId: string): Promise<boolean> => {
   return result.rowCount > 0;
 };
 
-// Update admin role or target
+// Update admin target
 export const updateAdmin = async (
   adminId: string,
-  updates: Partial<Pick<Admin, "role" | "targetId">>,
+  updates: Partial<Pick<Admin, "targetId">>,
 ): Promise<Admin | null> => {
   const [updated] = await db
     .update(admins)
@@ -114,10 +121,6 @@ export const getAllAdmins = async (filters?: {
 }): Promise<Admin[]> => {
   const conditions = [];
 
-  if (filters?.role) {
-    conditions.push(eq(admins.role, filters.role));
-  }
-
   if (filters?.targetId) {
     conditions.push(eq(admins.targetId, filters.targetId));
   }
@@ -130,8 +133,34 @@ export const getAllAdmins = async (filters?: {
     .where(query)
     .leftJoin(users, eq(admins.userId, users.id));
 
-  return results.map((row) => ({
+  // Filter by role if specified
+  const filteredResults = filters?.role
+    ? results.filter((row) => row.users?.role === filters.role)
+    : results;
+
+  return filteredResults.map((row) => ({
     ...row.admins,
     user: row.users as User,
   }));
+};
+
+// Get admin by role and target
+export const getAdminByRoleAndTarget = async (
+  role: Role,
+  targetId: string,
+): Promise<Admin | null> => {
+  const results = await db
+    .select()
+    .from(admins)
+    .where(eq(admins.targetId, targetId))
+    .leftJoin(users, eq(admins.userId, users.id));
+
+  const adminWithRole = results.find((row) => row.users?.role === role);
+
+  if (!adminWithRole) return null;
+
+  return {
+    ...adminWithRole.admins,
+    user: adminWithRole.users as User,
+  };
 };

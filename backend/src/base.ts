@@ -108,6 +108,7 @@ export interface UserSec {
   phone: string;
   gender: string;
   password: string;
+  role: Role | string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -224,7 +225,6 @@ export interface StudentUniversityPlacement {
 export interface Admin {
   id: string;
   userId: string;
-  role: string;
   targetId: string;
   user?: User;
 }
@@ -235,6 +235,7 @@ export interface CreateUserInput {
   password: string;
   gender: string;
   phone: string;
+  role: Role;
 }
 
 export interface UpdateUserInput {
@@ -259,6 +260,7 @@ export interface Session {
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  user?: User;
 }
 
 export interface CTXSession {
