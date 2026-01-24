@@ -312,7 +312,7 @@ export default function UniversityDashboard() {
                 </div>
 
                 <Tabs defaultValue="applications" className="space-y-8">
-                    <TabsList className="grid grid-cols-5 w-full">
+                    <TabsList className="grid grid-cols-3 w-full">
                         
                         <TabsTrigger value="placements">Placements</TabsTrigger>
                        
