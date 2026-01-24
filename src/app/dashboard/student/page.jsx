@@ -84,20 +84,20 @@ export default function StudentDashboard() {
     nationalId: "ET-123456789",
     birthDate: "2005-05-15",
     academicYear: "2024",
-    gpa: 3.8,
+    sex: "Male",
     school: "Addis Ababa High School",
     schoolId: "sch_001",
     city: "Addis Ababa",
     region: "Addis Ababa",
     status: "active",
-    verificationStatus: "verified",
+    phone: "0912345678",
     placementStatus: "pending"
   })
 
   const [submission, setSubmission] = useState(null)
   const [placement, setPlacement] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  // const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterField, setFilterField] = useState("all")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -436,17 +436,11 @@ export default function StudentDashboard() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-yellow-800">Action Required: Verify Your Data</h3>
+                  <h3 className="font-semibold text-yellow-800">Action Required: Verify Your Data In Your Profile Section</h3>
                   <p className="text-yellow-700 text-sm mt-1">
                     Please verify your personal and academic information before submitting university preferences.
                   </p>
-                  <Button
-                    size="sm"
-                    className="mt-3 bg-yellow-600 hover:bg-yellow-700"
-                    onClick={handleVerifyData}
-                  >
-                    Verify My Data
-                  </Button>
+
                 </div>
               </div>
             </CardContent>
@@ -713,10 +707,14 @@ export default function StudentDashboard() {
                     <CardTitle>Student Profile</CardTitle>
                     <CardDescription>Your personal information and academic details</CardDescription>
                   </div>
-                  <Button variant="outline" onClick={() => setIsEditDialogOpen(true)}>
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                  {student.verificationStatus !== "verified" && (
+                    <Button size="sm"
+                      className="mt-3 bg-yellow-600 hover:bg-yellow-700"
+                      onClick={handleVerifyData}
+                    >
+                      Verify My DData
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
@@ -753,12 +751,9 @@ export default function StudentDashboard() {
                       <Input value={student.school} readOnly />
                     </div>
                     <div>
-                      <Label>Verification Status</Label>
+                      <Label>Phone Numeber</Label>
                       <div className="flex items-center gap-2">
-                        <Input value={student.verificationStatus} readOnly />
-                        <Badge variant={student.verificationStatus === "verified" ? "default" : "secondary"}>
-                          {student.verificationStatus}
-                        </Badge>
+                        <Input value={student.phone} readOnly />
                       </div>
                     </div>
                   </div>
@@ -882,7 +877,15 @@ export default function StudentDashboard() {
                       You need to submit your university preferences to EAES before you can receive placement.
                       Go to the "Rank Universities" tab to complete your preferences.
                     </p>
-                    <Button onClick={() => document.querySelector('[data-value="ranking"]').click()}>
+                    <Button onClick={() => {
+                      const rankingTab = document.querySelector('button[role="tab"][value="ranking"]');
+                      if (rankingTab) {
+                        rankingTab.click();
+                      } else {
+                        // Fallback or error handling
+                        console.error("Ranking tab not found");
+                      }
+                    }}>
                       Go to University Ranking
                     </Button>
                   </div>
@@ -894,7 +897,7 @@ export default function StudentDashboard() {
       </main>
 
       {/* Edit Profile Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      {/* <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit Student Profile</DialogTitle>
@@ -926,7 +929,7 @@ export default function StudentDashboard() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   )
 }
