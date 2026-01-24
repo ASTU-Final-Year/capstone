@@ -19,7 +19,6 @@ import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Mail, Lock, School, User } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,7 +64,6 @@ export default function LoginPage() {
         return;
       }
 
-      api.setToken(loginData.sessionId);
       // Decide redirect path: prefer serverRole, else fall back to selected role
       const effectiveRole = loginData?.user?.role || "student";
       toast.success("Login successful! Redirecting...");
