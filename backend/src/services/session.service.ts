@@ -7,10 +7,10 @@ import { type Session, type User } from "../base";
 // Create a new session
 export const createSession = async (
   userId: string,
-  maxAgeSeconds: number = 24 * 60 * 60,
+  expires: number = 24 * 60 * 60,
 ): Promise<string> => {
   const sessionId = crypto.randomUUID();
-  const expiresAt = new Date(Date.now() + maxAgeSeconds * 1000);
+  const expiresAt = new Date(expires);
   const [session] = await db
     .insert(sessions)
     .values({

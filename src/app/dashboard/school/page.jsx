@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -46,8 +46,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
 } from "recharts";
 import {
   Users,
@@ -57,7 +55,7 @@ import {
   UserPlus,
   School,
   BookOpen,
-  Filter,
+  Filter as FilterIcon,
   Edit,
   Send,
   FileText,
@@ -70,281 +68,842 @@ import {
   Download,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Loader2,
+  RefreshCw,
+  AlertTriangle,
+  Trash2,
+  Search,
+  Award,
+  ChartBar,
+  UserCheck,
+  ClipboardCheck,
+  BarChart3,
+  Building,
+  Globe,
+  Target,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
 
-// Mock data aligned with EAES project requirements
-const mockStudents = [
-  {
-    id: "1",
-    fullname: "John Doe",
-    email: "john@example.com",
-    phone: "+251911234567",
-    nationalId: "123456789",
-    birthDate: "2005-06-15",
-    academicYear: "2024",
-    gpa: 3.8,
-    isActive: true,
-    specialNeed: false,
-    verificationStatus: 'Verified',
-    isSubmitted: true,
-    createdAt: "2024-01-15T10:30:00Z",
-  },
-  {
-    id: "2",
-    fullname: "Jane Smith",
-    email: "jane@example.com",
-    phone: "+251911234568",
-    nationalId: "987654321",
-    birthDate: "2005-03-22",
-    academicYear: "2024",
-    gpa: 3.9,
-    isActive: true,
-    specialNeed: true,
-    verificationStatus: 'Verified',
-    isSubmitted: true,
-    createdAt: "2024-01-16T14:45:00Z",
-  },
-  {
-    id: '3',
-    fullname: 'Michael Johnson',
-    email: 'michael@example.com',
-    phone: '+251911234569',
-    nationalId: '456789123',
-    birthDate: '2005-08-10',
-    academicYear: '2024',
-    gpa: 3.5,
-    isActive: true,
-    specialNeed: false,
-    verificationStatus: 'Pending',
-    isSubmitted: false,
-    createdAt: '2024-01-17T09:15:00Z'
-  },
-];
+// API Configuration
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-const mockPlacements = [
-  {
-    studentId: '1',
-    studentName: 'John Doe',
-    university: 'Addis Ababa University',
-    program: 'Computer Science',
-    placementDate: '2024-06-15',
-    status: 'Placed'
+// API Service functions
+const apiService = {
+  // Get dashboard overview
+  getDashboardOverview: async () => {
+    const response = await fetch(`${API_BASE_URL}/school/overview`, {
+      credentials: "include",
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Session expired. Please login again.");
+      }
+      throw new Error("Failed to fetch dashboard data");
+    }
+    return response.json();
   },
-  {
-    studentId: '2',
-    studentName: 'Jane Smith',
-    university: 'Jimma University',
-    program: 'Medicine',
-    placementDate: '2024-06-15',
-    status: 'Placed'
-  },
-  {
-    studentId: '3',
-    studentName: 'Michael Johnson',
-    university: 'Hawassa University',
-    program: 'Engineering',
-    placementDate: '2024-06-15',
-    status: 'Placed'
-  },
-];
 
-const initialSchoolProfile = {
-  name: 'Central High School',
-  schoolId: 'CHS-001',
-  type: 'Public',
-  region: 'Addis Ababa',
-  city: 'Addis Ababa',
-  principalName: 'Dr. Alemayehu Bekele',
-  phone: '+251-11-1234567',
-  email: 'centralhs@edu.et',
-  totalStudents: 245,
-  submittedStudents: 230,
-  verifiedStudents: 200,
-  placedStudents: 3,
-  placementReleaseDate: '2024-06-15',
-  submissionDeadline: '2024-04-30'
+  // Get school statistics
+  getStatistics: async (academicYear) => {
+    const url = `${API_BASE_URL}/school/statistics${academicYear ? `?academicYear=${academicYear}` : ""}`;
+    const response = await fetch(url, {
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Failed to fetch statistics");
+    return response.json();
+  },
+
+  // Get students with pagination
+  getStudents: async (page = 1, limit = 20, filters = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...filters,
+    });
+
+    const response = await fetch(`${API_BASE_URL}/school/students?${params}`, {
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Failed to fetch students");
+    return response.json();
+  },
+
+  // Get student details
+  getStudentDetails: async (studentId) => {
+    const response = await fetch(
+      `${API_BASE_URL}/school/students/${studentId}`,
+      {
+        credentials: "include",
+      },
+    );
+    if (!response.ok) throw new Error("Failed to fetch student details");
+    return response.json();
+  },
+
+  // Get school submissions
+  getSubmissions: async (filters = {}) => {
+    const params = new URLSearchParams(filters);
+    const response = await fetch(
+      `${API_BASE_URL}/school/submissions?${params}`,
+      {
+        credentials: "include",
+      },
+    );
+    if (!response.ok) throw new Error("Failed to fetch submissions");
+    return response.json();
+  },
+
+  // Get analytics
+  getAnalytics: async (academicYear) => {
+    const url = `${API_BASE_URL}/school/analytics${academicYear ? `?academicYear=${academicYear}` : ""}`;
+    const response = await fetch(url, {
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Failed to fetch analytics");
+    return response.json();
+  },
+
+  // Add new student
+  addStudent: async (studentData) => {
+    const response = await fetch(`${API_BASE_URL}/school/students`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(studentData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to add student");
+    }
+    return response.json();
+  },
+
+  // Update student
+  updateStudent: async (studentId, updates) => {
+    const response = await fetch(
+      `${API_BASE_URL}/school/students/${studentId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(updates),
+      },
+    );
+    if (!response.ok) throw new Error("Failed to update student");
+    return response.json();
+  },
+
+  // Submit students to EAES
+  submitToEAES: async (studentIds) => {
+    const response = await fetch(`${API_BASE_URL}/school/submit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ studentIds }),
+    });
+    if (!response.ok) throw new Error("Failed to submit to EAES");
+    return response.json();
+  },
+
+  // Update school profile
+  updateProfile: async (profileData) => {
+    const response = await fetch(`${API_BASE_URL}/school/profile`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(profileData),
+    });
+    if (!response.ok) throw new Error("Failed to update profile");
+    return response.json();
+  },
+
+  // Export student data
+  exportStudents: async (filters = {}) => {
+    const params = new URLSearchParams(filters);
+    const response = await fetch(
+      `${API_BASE_URL}/school/export/students?${params}`,
+      {
+        credentials: "include",
+      },
+    );
+    if (!response.ok) throw new Error("Failed to export data");
+    return response.blob();
+  },
+
+  // Check session validity
+  checkSession: async () => {
+    const response = await fetch(`${API_BASE_URL}/session`, {
+      credentials: "include",
+    });
+    return response.ok;
+  },
 };
 
-const mockAnalytics = {
-  totalStudents: 245,
-  activeStudents: 230,
-  averageGPA: 3.45,
-  graduationRate: 92,
-  specialNeedsCount: 18,
-  yearDistribution: [
-    { year: "2024", count: 85 },
-    { year: "2023", count: 80 },
-    { year: "2022", count: 80 },
-  ],
-  gpaDistribution: [
-    { range: "4.0", count: 15 },
-    { range: "3.5-3.9", count: 85 },
-    { range: "3.0-3.4", count: 90 },
-    { range: "2.5-2.9", count: 40 },
-    { range: "Below 2.5", count: 15 },
-  ]
-};
+export default function SchoolAdminDashboard() {
+  const router = useRouter();
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
-
-export default function SchoolDashboard() {
-  const [students, setStudents] = useState(mockStudents);
-  const [placements, setPlacements] = useState(mockPlacements);
-  const [schoolProfile, setSchoolProfile] = useState(initialSchoolProfile);
-  const [analytics, setAnalytics] = useState(mockAnalytics);
+  // State
+  const [authLoading, setAuthLoading] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [placements, setPlacements] = useState([]);
+  const [schoolProfile, setSchoolProfile] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isSubmitAllOpen, setIsSubmitAllOpen] = useState(false);
+  const [isViewStudentOpen, setIsViewStudentOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedStudents, setSelectedStudents] = useState([]);
-  const [editedProfile, setEditedProfile] = useState({ ...initialSchoolProfile });
+  const [editedProfile, setEditedProfile] = useState({});
   const [newStudent, setNewStudent] = useState({
-    fullname: "",
-    email: "",
-    phone: "",
-    nationalId: "",
-    birthDate: "",
-    academicYear: "2024",
-    gender: "",
-    password: "",
-    gpa: "",
-    specialNeed: false,
+    student: {
+      nationalId: "",
+      birthDate: "",
+      academicYear: new Date().getFullYear().toString(),
+      specialNeed: false,
+      gpa: "",
+    },
+    user: {
+      fullname: "",
+      email: "",
+      gender: "male",
+      phone: "",
+      password: "",
+    },
   });
 
-  const canSubmitToEAES = students.some(s => s.verificationStatus === 'Verified' && !s.isSubmitted);
-  const placementsReleased = new Date() >= new Date(schoolProfile.placementReleaseDate);
-  const verificationProgress = Math.round((schoolProfile.verifiedStudents / schoolProfile.totalStudents) * 100);
+  // Loading states
+  const [loading, setLoading] = useState({
+    dashboard: true,
+    students: false,
+    analytics: false,
+    submitting: false,
+    exporting: false,
+  });
 
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 1,
+  });
+
+  const [filters, setFilters] = useState({
+    isActive: true,
+    academicYear: "2024",
+    hasSubmission: undefined,
+    search: "",
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+
+  // Colors for charts
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
+
+  // // Check session and redirect if needed
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     const hasSession = await apiService.checkSession();
+  //     if (!hasSession) {
+  //       router.push("/login");
+  //       toast({
+  //         title: "Session expired",
+  //         description: "Please login again",
+  //         variant: "destructive",
+  //       });
+  //     }
+  //   };
+  //   checkAuth();
+  // }, [router, toast]);
+
+  // Check authentication and get school admin data
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        console.log("Starting school admin auth check...");
+
+        // Check session
+        const sessionResponse = await api.auth.getCurrentSession();
+        console.log("School admin auth check:", sessionResponse);
+
+        if (
+          !sessionResponse.success ||
+          !sessionResponse.session ||
+          !sessionResponse.session.user
+        ) {
+          toast.error("Please login first");
+          router.push("/login");
+          return;
+        }
+
+        const user = sessionResponse.session.user;
+        console.log("School admin authenticated as:", user.role);
+        // setCurrentUser(user);
+
+        // Check if user is school_admin or super_admin
+        if (!["school_admin", "super_admin"].includes(user.role)) {
+          toast.error("Access denied. School admin or super admin required.");
+          router.push("/login");
+          return;
+        }
+
+        // Get admin details to find target school
+        console.log("Getting admin details for user:", user.id);
+        const adminDetails = await api.admin.getAdminByUserId(user.id);
+        console.log("Admin details response:", adminDetails);
+
+        // Super admin can access any school, school admin needs targetId
+        let targetSchoolId = null;
+        if (user.role === "super_admin") {
+          // For super admin, get school from URL params
+          const params = new URLSearchParams(window.location.search);
+          targetSchoolId = params.get("schoolId") || "demo_school_id";
+        } else {
+          if (
+            !adminDetails ||
+            !adminDetails.user ||
+            !adminDetails.user.admin ||
+            !adminDetails.user.admin.targetId
+          ) {
+            toast.error("School assignment not found");
+            router.push("/login");
+            return;
+          }
+          targetSchoolId = adminDetails.user.admin.targetId;
+        }
+
+        console.log("Found target school ID:", targetSchoolId);
+
+        setAuthLoading(false);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        toast.error("Please login first");
+        router.push("/login");
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await api.auth.logout();
+      api.clearToken();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      router.push("/login");
+    }
+  };
+
+  // Load dashboard data
+  const loadDashboardData = useCallback(async () => {
+    try {
+      setLoading((prev) => ({ ...prev, dashboard: true }));
+
+      const [dashboardData, submissionsData] = await Promise.all([
+        apiService.getDashboardOverview(),
+        apiService.getSubmissions({ academicYear: filters.academicYear }),
+      ]);
+
+      if (dashboardData.success) {
+        const dashboard = dashboardData.dashboard;
+        setSchoolProfile(dashboard.school);
+
+        // Transform data for display
+        setAnalytics({
+          totalStudents: dashboard.totalStudents || 0,
+          activeStudents: dashboard.stats?.activeStudents || 0,
+          // averageGPA: dashboard.stats?.averageGPA?.toFixed(2) || "0.00",
+          specialNeedsCount: dashboard.stats?.specialNeedsCount || 0,
+          submissionsCount: dashboard.totalSubmissions || 0,
+          yearDistribution:
+            dashboard.stats?.byAcademicYear?.map((item) => ({
+              year: item.academicYear,
+              count: item.studentCount,
+            })) || [],
+          gpaDistribution: [
+            { range: "600", count: Math.floor(Math.random() * 100) + 500 },
+            { range: "500", count: Math.floor(Math.random() * 100) + 400 },
+            { range: "400", count: Math.floor(Math.random() * 100) + 300 },
+            { range: "300", count: Math.floor(Math.random() * 100) + 200 },
+            { range: "200", count: Math.floor(Math.random() * 100) + 100 },
+          ],
+        });
+
+        // Set recent students
+        if (dashboard.recentStudents) {
+          setStudents(dashboard.recentStudents);
+        }
+      }
+
+      toast({
+        title: "Dashboard updated",
+        description: "Latest data fetched successfully",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to load dashboard data",
+        variant: "destructive",
+      });
+
+      if (error.message.includes("Session expired")) {
+        router.push("/login");
+      }
+    } finally {
+      setLoading((prev) => ({ ...prev, dashboard: false }));
+    }
+  }, [filters.academicYear, toast, router]);
+
+  // Load students
+  const loadStudents = useCallback(async () => {
+    try {
+      setLoading((prev) => ({ ...prev, students: true }));
+
+      const response = await apiService
+        .getStudents
+        // pagination.page,
+        // pagination.limit,
+        // filters,
+        ();
+
+      if (response.success) {
+        setStudents(response.students);
+        setPagination((prev) => ({
+          ...prev,
+          total: response.pagination.total,
+          totalPages: response.pagination.totalPages,
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading students:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to load students",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, students: false }));
+    }
+  }, [pagination.page, pagination.limit, filters, toast]);
+
+  // Load analytics
+  const loadAnalytics = useCallback(async () => {
+    try {
+      setLoading((prev) => ({ ...prev, analytics: true }));
+
+      const response = await apiService.getAnalytics(filters.academicYear);
+
+      if (response.success) {
+        setAnalytics(response.analytics);
+      }
+    } catch (error) {
+      console.error("Error loading analytics:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, analytics: false }));
+    }
+  }, [filters.academicYear]);
+
+  // Load initial data
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  // Load students when tab changes or filters update
+  useEffect(() => {
+    if (activeTab === "students") {
+      loadStudents();
+    }
+  }, [activeTab, pagination.page, filters, loadStudents]);
+
+  // Load analytics when needed
+  useEffect(() => {
+    if (activeTab === "overview" || activeTab === "analytics") {
+      loadAnalytics();
+    }
+  }, [activeTab, loadAnalytics]);
+
+  // Handlers
   const handleAddStudent = async (e) => {
     e.preventDefault();
 
-    const mockResponse = {
-      id: String(students.length + 1),
-      ...newStudent,
-      gpa: parseFloat(newStudent.gpa) || 0,
-      isActive: true,
-      verificationStatus: 'Pending',
-      isSubmitted: false,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      setLoading((prev) => ({ ...prev, submitting: true }));
 
-    setStudents([...students, mockResponse]);
-    setSchoolProfile({
-      ...schoolProfile,
-      totalStudents: schoolProfile.totalStudents + 1
-    });
+      const response = await apiService.addStudent(newStudent);
 
-    setIsAddStudentOpen(false);
-    setNewStudent({
-      fullname: "",
-      email: "",
-      phone: "",
-      nationalId: "",
-      birthDate: "",
-      academicYear: "2024",
-      gender: "",
-      password: "",
-      gpa: "",
-      specialNeed: false,
-    });
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Student added successfully",
+        });
+
+        setIsAddStudentOpen(false);
+        setNewStudent({
+          student: {
+            nationalId: "",
+            birthDate: "",
+            academicYear: new Date().getFullYear().toString(),
+            specialNeed: false,
+            gpa: "",
+          },
+          user: {
+            fullname: "",
+            email: "",
+            gender: "male",
+            phone: "",
+            password: "",
+          },
+        });
+
+        // Refresh data
+        loadDashboardData();
+        if (activeTab === "students") {
+          loadStudents();
+        }
+      }
+    } catch (error) {
+      console.error("Error adding student:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add student",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, submitting: false }));
+    }
   };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    setSchoolProfile(editedProfile);
-    setIsEditProfileOpen(false);
+
+    try {
+      const response = await apiService.updateProfile(editedProfile);
+
+      if (response.success) {
+        setSchoolProfile(editedProfile);
+        setIsEditProfileOpen(false);
+
+        toast({
+          title: "Success",
+          description: "Profile updated successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleSubmitAllToEAES = () => {
-    const verifiedStudents = students.filter(s => s.verificationStatus === 'Verified' && !s.isSubmitted);
+  const handleSubmitAllToEAES = async () => {
+    try {
+      setLoading((prev) => ({ ...prev, submitting: true }));
 
-    const updatedStudents = students.map(student =>
-      student.verificationStatus === 'Verified' && !student.isSubmitted
-        ? { ...student, isSubmitted: true }
-        : student
-    );
+      const studentIds = students
+        .filter((s) => !s.isSubmitted && s.verificationStatus === "verified")
+        .map((s) => s.id);
 
-    setStudents(updatedStudents);
-    setSchoolProfile(prev => ({
-      ...prev,
-      submittedStudents: prev.submittedStudents + verifiedStudents.length
-    }));
+      if (studentIds.length === 0) {
+        toast({
+          title: "No students to submit",
+          description:
+            "All eligible students are already submitted or need verification",
+          variant: "warning",
+        });
+        return;
+      }
 
-    setIsSubmitAllOpen(false);
-    alert(`Successfully submitted ${verifiedStudents.length} students to EAES`);
+      const response = await apiService.submitToEAES(studentIds);
+
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: `${studentIds.length} students submitted to EAES`,
+        });
+
+        setIsSubmitAllOpen(false);
+        setSelectedStudents([]);
+
+        // Refresh data
+        loadDashboardData();
+        loadStudents();
+      }
+    } catch (error) {
+      console.error("Error submitting to EAES:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit to EAES",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, submitting: false }));
+    }
+  };
+
+  const handleSubmitSelected = async () => {
+    try {
+      if (selectedStudents.length === 0) return;
+
+      const eligibleStudents = selectedStudents.filter((id) => {
+        const student = students.find((s) => s.id === id);
+        return (
+          student &&
+          !student.isSubmitted &&
+          student.verificationStatus === "verified"
+        );
+      });
+
+      if (eligibleStudents.length === 0) {
+        toast({
+          title: "No eligible students",
+          description:
+            "Selected students are not verified or already submitted",
+          variant: "warning",
+        });
+        return;
+      }
+
+      const response = await apiService.submitToEAES(eligibleStudents);
+
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: `${eligibleStudents.length} students submitted to EAES`,
+        });
+
+        setSelectedStudents([]);
+        loadDashboardData();
+        loadStudents();
+      }
+    } catch (error) {
+      console.error("Error submitting selected:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit students",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleToggleStudentSelection = (studentId) => {
-    setSelectedStudents(prev =>
+    setSelectedStudents((prev) =>
       prev.includes(studentId)
-        ? prev.filter(id => id !== studentId)
-        : [...prev, studentId]
+        ? prev.filter((id) => id !== studentId)
+        : [...prev, studentId],
     );
   };
 
-  const handleSubmitSelected = () => {
-    const selectedVerified = students.filter(
-      s => selectedStudents.includes(s.id) && s.verificationStatus === 'Verified' && !s.isSubmitted
-    );
+  const handleSelectAll = () => {
+    if (selectedStudents.length === students.length) {
+      setSelectedStudents([]);
+    } else {
+      setSelectedStudents(students.map((s) => s.id));
+    }
+  };
 
-    const updatedStudents = students.map(student =>
-      selectedStudents.includes(student.id) && student.verificationStatus === 'Verified' && !student.isSubmitted
-        ? { ...student, isSubmitted: true }
-        : student
-    );
-
-    setStudents(updatedStudents);
-    setSchoolProfile(prev => ({
+  const handleInputChange = (section, field, value) => {
+    setNewStudent((prev) => ({
       ...prev,
-      submittedStudents: prev.submittedStudents + selectedVerified.length
+      [section]: {
+        ...prev[section],
+        [field]: value,
+      },
     }));
-
-    setSelectedStudents([]);
-    alert(`Submitted ${selectedVerified.length} selected students to EAES`);
-  };
-
-  const handleInputChange = (field, value) => {
-    setNewStudent((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleProfileChange = (field, value) => {
-    setEditedProfile(prev => ({ ...prev, [field]: value }));
+    setEditedProfile((prev) => ({ ...prev, [field]: value }));
   };
 
-  const statsCards = [
-    {
-      title: "Total Students",
-      value: schoolProfile.totalStudents,
-      icon: Users,
-      description: "Registered students",
-      color: "bg-blue-500",
-    },
-    {
-      title: "Submitted to EAES",
-      value: schoolProfile.submittedStudents,
-      icon: FileText,
-      description: "Data sent for placement",
-      color: "bg-green-500",
-    },
-    {
-      title: "Verified by Students",
-      value: schoolProfile.verifiedStudents,
-      icon: CheckCircle,
-      description: "Student-verified data",
-      color: "bg-purple-500",
-    },
-    {
-      title: "Placement Date",
-      value: format(new Date(schoolProfile.placementReleaseDate), 'MMM dd'),
-      icon: Calendar,
-      description: "Expected release",
-      color: "bg-orange-500",
-    },
-  ];
+  const handleFilterChange = (field, value) => {
+    setFilters((prev) => ({ ...prev, [field]: value }));
+    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
+  };
+
+  const handlePageChange = (newPage) => {
+    setPagination((prev) => ({ ...prev, page: newPage }));
+  };
+
+  const handleViewStudent = async (studentId) => {
+    try {
+      const response = await apiService.getStudentDetails(studentId);
+      if (response.success) {
+        setSelectedStudent(response.student);
+        setIsViewStudentOpen(true);
+      }
+    } catch (error) {
+      console.error("Error fetching student details:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load student details",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      setLoading((prev) => ({ ...prev, exporting: true }));
+
+      const blob = await apiService.exportStudents(filters);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `students-${format(new Date(), "yyyy-MM-dd")}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Success",
+        description: "Data exported successfully",
+      });
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to export data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, exporting: false }));
+    }
+  };
+
+  // Helper functions
+  const canSubmitToEAES = students.some(
+    (s) => !s.isSubmitted && s.verificationStatus === "verified",
+  );
+
+  const verificationProgress = schoolProfile?.stats
+    ? Math.round(
+        (schoolProfile.stats.verifiedStudents /
+          schoolProfile.stats.totalStudents) *
+          100,
+      ) || 0
+    : 0;
+
+  const submissionProgress = schoolProfile?.stats
+    ? Math.round(
+        (schoolProfile.stats.submissionsCount /
+          schoolProfile.stats.totalStudents) *
+          100,
+      ) || 0
+    : 0;
+
+  // Stats cards
+  const statsCards = schoolProfile
+    ? [
+        {
+          title: "Total Students",
+          value: schoolProfile.stats?.totalStudents || 0,
+          icon: Users,
+          description: "Registered students",
+          color: "bg-blue-500",
+        },
+        {
+          title: "Active Students",
+          value: schoolProfile.stats?.activeStudents || 0,
+          icon: UserCheck,
+          description: "Currently active",
+          color: "bg-green-500",
+        },
+        {
+          title: "Average GPA",
+          value: schoolProfile.stats?.averageGPA?.toFixed(2) || "0.00",
+          icon: TrendingUp,
+          description: "School average",
+          color: "bg-purple-500",
+        },
+        {
+          title: "EAES Submissions",
+          value: schoolProfile.stats?.submissionsCount || 0,
+          icon: FileText,
+          description: "Submitted to EAES",
+          color: "bg-orange-500",
+        },
+      ]
+    : [];
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+          <p className="mt-4 text-gray-500">Authenticating...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading.dashboard && !schoolProfile) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900">
+            Loading School Dashboard
+          </h2>
+          <p className="text-gray-600">
+            Please wait while we fetch your data...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!schoolProfile) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900">
+            Unable to Load Dashboard
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Please check your connection and try again.
+          </p>
+          <Button onClick={loadDashboardData}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -352,40 +911,53 @@ export default function SchoolDashboard() {
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              EAES School Portal
-            </h1>
-            <div className="mt-2 flex items-center gap-2">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold text-gray-900">
+                School Admin Portal
+              </h1>
+              {loading.dashboard && (
+                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+              )}
+            </div>
+            <div className="flex items-center gap-2">
               <School className="h-5 w-5 text-gray-500" />
-              <p className="text-gray-600">
-                {schoolProfile.name} • ID: {schoolProfile.schoolId}
-              </p>
+              <p className="text-gray-600">{schoolProfile.name}</p>
               <Badge variant="secondary">{schoolProfile.type}</Badge>
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-gray-500">
-              <span>{schoolProfile.region}, {schoolProfile.city}</span>
-              <span>• Principal: {schoolProfile.principalName}</span>
-              <span>• Submission Deadline: {format(new Date(schoolProfile.submissionDeadline), 'MMM dd, yyyy')}</span>
+              <span>
+                <MapPin className="inline h-4 w-4 mr-1" />
+                {schoolProfile.city?.name}, {schoolProfile.city?.region?.name}
+              </span>
+              {schoolProfile.principalName && (
+                <span>• Principal: {schoolProfile.principalName}</span>
+              )}
             </div>
           </div>
 
           <div className="flex gap-2 mt-4 md:mt-0">
-            <NotificationDropdown />
-
+            {/* <NotificationDropdown /> */}
             <Button
               variant="outline"
-              onClick={() => setIsEditProfileOpen(true)}
+              size="sm"
+              onClick={() => loadDashboardData()}
             >
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Profile
+              Refresh
             </Button>
-            <Button
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              Logout
+            </Button>
+            {/* <Button
               onClick={() => setIsAddStudentOpen(true)}
+              disabled={loading.submitting}
             >
-              <UserPlus className="mr-2 h-4 w-4" />
+              {loading.submitting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <UserPlus className="mr-2 h-4 w-4" />
+              )}
               Add Student
-            </Button>
-
+            </Button> */}
           </div>
         </div>
       </div>
@@ -403,11 +975,14 @@ export default function SchoolDashboard() {
           </TabsTrigger>
           <TabsTrigger value="students">
             <Users className="mr-2 h-4 w-4" />
-            Students
+            Students{" "}
+            {loading.students && (
+              <Loader2 className="ml-2 h-3 w-3 animate-spin" />
+            )}
           </TabsTrigger>
-          <TabsTrigger value="placements">
-            <GraduationCap className="mr-2 h-4 w-4" />
-            Placements
+          <TabsTrigger value="analytics">
+            <BarChart3 className="mr-2 h-4 w-4" />
+            Analytics
           </TabsTrigger>
           <TabsTrigger value="profile">
             <School className="mr-2 h-4 w-4" />
@@ -443,7 +1018,7 @@ export default function SchoolDashboard() {
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Verification Progress</CardTitle>
+                <CardTitle>Student Verification Progress</CardTitle>
                 <CardDescription>
                   Student data verification status
                 </CardDescription>
@@ -451,12 +1026,15 @@ export default function SchoolDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span>Verified: {schoolProfile.verifiedStudents} students</span>
+                    <span>
+                      Verified: {schoolProfile.stats?.verifiedStudents || 0}{" "}
+                      students
+                    </span>
                     <span>{verificationProgress}%</span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-green-500 rounded-full"
+                      className="h-full bg-green-500 rounded-full transition-all duration-500"
                       style={{ width: `${verificationProgress}%` }}
                     />
                   </div>
@@ -477,24 +1055,28 @@ export default function SchoolDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span>Submitted: {schoolProfile.submittedStudents} students</span>
-                    <span>{Math.round((schoolProfile.submittedStudents / schoolProfile.totalStudents) * 100)}%</span>
+                    <span>
+                      Submitted: {schoolProfile.stats?.submissionsCount || 0}{" "}
+                      students
+                    </span>
+                    <span>{submissionProgress}%</span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-500 rounded-full"
-                      style={{ width: `${(schoolProfile.submittedStudents / schoolProfile.totalStudents) * 100}%` }}
+                      className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                      style={{ width: `${submissionProgress}%` }}
                     />
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">
-                      Deadline: {format(new Date(schoolProfile.submissionDeadline), 'MMM dd, yyyy')}
+                      Deadline: June 15, 2024
                     </span>
                     {canSubmitToEAES && (
                       <Button
                         size="sm"
                         onClick={() => setIsSubmitAllOpen(true)}
                         className="ml-2"
+                        disabled={loading.submitting}
                       >
                         <Send className="mr-2 h-3 w-3" />
                         Submit to EAES
@@ -506,100 +1088,152 @@ export default function SchoolDashboard() {
             </Card>
           </div>
 
-          {/* Placement Status */}
+          {/* Analytics Preview */}
           <Card>
             <CardHeader>
-              <CardTitle>Placement Timeline</CardTitle>
-              <CardDescription>
-                All students will receive placements simultaneously
-              </CardDescription>
+              <CardTitle>Quick Analytics</CardTitle>
+              <CardDescription>Key performance indicators</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 rounded-full">
-                      <Calendar className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Placement Release Date</h4>
-                      <p className="text-sm text-gray-600">
-                        {format(new Date(schoolProfile.placementReleaseDate), 'MMMM dd, yyyy')}
-                      </p>
-                    </div>
+              {analytics ? (
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-medium mb-4">
+                      Student Distribution by Year
+                    </h4>
+                    {analytics.yearDistribution &&
+                    analytics.yearDistribution.length > 0 ? (
+                      <div className="h-48">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={analytics.yearDistribution}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="year" />
+                            <YAxis />
+                            <Tooltip />
+                            <Bar dataKey="count" fill="#8884d8" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        No distribution data available
+                      </div>
+                    )}
                   </div>
-                  <Badge variant={placementsReleased ? "default" : "secondary"}>
-                    {placementsReleased ? 'Released' : 'Pending'}
-                  </Badge>
+                  <div>
+                    <h4 className="font-medium mb-4">GPA Distribution</h4>
+                    {analytics.gpaDistribution &&
+                    analytics.gpaDistribution.length > 0 ? (
+                      <div className="h-48">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={analytics.gpaDistribution}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              label={({ range, percent }) =>
+                                `${range}: ${(percent * 100).toFixed(0)}%`
+                              }
+                              outerRadius={70}
+                              fill="#8884d8"
+                              dataKey="count"
+                            >
+                              {analytics.gpaDistribution.map((_, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={COLORS[index % COLORS.length]}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        No GPA data available
+                      </div>
+                    )}
+                  </div>
                 </div>
-
-                {placementsReleased ? (
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <div className="flex items-center gap-2 text-green-700">
-                      <CheckCircle className="h-5 w-5" />
-                      <span className="font-medium">Placements Released!</span>
-                    </div>
-                    <p className="text-sm text-green-600 mt-1">
-                      All eligible students have received their university placements.
-                      Check the Placements tab for details.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="p-4 bg-yellow-50 rounded-lg">
-                    <div className="flex items-center gap-2 text-yellow-700">
-                      <AlertCircle className="h-5 w-5" />
-                      <span className="font-medium">Placements Pending</span>
-                    </div>
-                    <p className="text-sm text-yellow-600 mt-1">
-                      Placements will be released for all students on {format(new Date(schoolProfile.placementReleaseDate), 'MMMM dd, yyyy')}.
-                    </p>
-                  </div>
-                )}
-              </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+                  <p className="text-gray-600">Loading analytics...</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Recent Activity */}
+          {/* Recent Students */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Student Activities</CardTitle>
-              <CardDescription>Latest student verification and submission activities</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Recent Students</CardTitle>
+                  <CardDescription>Recently added students</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={loadDashboardData}
+                  disabled={loading.dashboard}
+                >
+                  {loading.dashboard ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Student Name</TableHead>
-                    <TableHead>Activity</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {students.slice(0, 5).map((student) => (
-                    <TableRow key={student.id}>
-                      <TableCell className="font-medium">
-                        {student.fullname}
-                      </TableCell>
-                      <TableCell>
-                        {student.isSubmitted ? 'EAES Submission' :
-                          student.verificationStatus === 'Verified' ? 'Student Verification' : 'Data Entry'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={
-                          student.isSubmitted ? "default" :
-                            student.verificationStatus === 'Verified' ? "default" : "secondary"
-                        }>
-                          {student.isSubmitted ? 'Submitted' : student.verificationStatus}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(student.createdAt), "MMM dd, yyyy")}
-                      </TableCell>
+              {students.slice(0, 5).length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Student Name</TableHead>
+                      <TableHead>Academic Year</TableHead>
+                      <TableHead>GPA</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {students.slice(0, 5).map((student) => (
+                      <TableRow key={student.id}>
+                        <TableCell className="font-medium">
+                          {student.user?.fullname || student.fullname}
+                        </TableCell>
+                        <TableCell>{student.academicYear}</TableCell>
+                        <TableCell>{student.gpa || "N/A"}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={student.isActive ? "default" : "secondary"}
+                          >
+                            {student.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewStudent(student.id)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No students found. Add your first student!
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -612,33 +1246,51 @@ export default function SchoolDashboard() {
                 <div>
                   <CardTitle>Student Management</CardTitle>
                   <CardDescription>
-                    Register and manage student data for EAES placement
+                    Manage student data for EAES placement
                   </CardDescription>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {selectedStudents.length > 0 && (
                     <Button
                       variant="default"
                       size="sm"
                       onClick={handleSubmitSelected}
-                      disabled={!selectedStudents.some(id =>
-                        students.find(s => s.id === id)?.verificationStatus === 'Verified' &&
-                        !students.find(s => s.id === id)?.isSubmitted
-                      )}
+                      disabled={loading.submitting}
                     >
-                      <Send className="mr-2 h-3 w-3" />
+                      {loading.submitting ? (
+                        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                      ) : (
+                        <Send className="mr-2 h-3 w-3" />
+                      )}
                       Submit Selected ({selectedStudents.length})
                     </Button>
                   )}
                   <Button
                     onClick={() => setIsSubmitAllOpen(true)}
                     size="sm"
-                    disabled={!canSubmitToEAES}
+                    disabled={!canSubmitToEAES || loading.submitting}
                   >
                     <FileText className="mr-2 h-3 w-3" />
                     Submit All Verified
                   </Button>
-                  <Button onClick={() => setIsAddStudentOpen(true)} size="sm">
+                  <Button
+                    onClick={handleExportData}
+                    variant="outline"
+                    size="sm"
+                    disabled={loading.exporting}
+                  >
+                    {loading.exporting ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-3 w-3" />
+                    )}
+                    Export
+                  </Button>
+                  <Button
+                    onClick={() => setIsAddStudentOpen(true)}
+                    size="sm"
+                    disabled={loading.submitting}
+                  >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add Student
                   </Button>
@@ -646,6 +1298,69 @@ export default function SchoolDashboard() {
               </div>
             </CardHeader>
             <CardContent>
+              {/* Filters */}
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search students..."
+                    className="pl-10"
+                    value={filters.search}
+                    onChange={(e) =>
+                      handleFilterChange("search", e.target.value)
+                    }
+                  />
+                </div>
+                <Select
+                  value={filters.academicYear}
+                  onValueChange={(value) =>
+                    handleFilterChange("academicYear", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Academic Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Years</SelectItem>
+                    <SelectItem value="2024">2024</SelectItem>
+                    <SelectItem value="2023">2023</SelectItem>
+                    <SelectItem value="2022">2022</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filters.isActive?.toString() || "all"}
+                  onValueChange={(value) =>
+                    handleFilterChange(
+                      "isActive",
+                      value === "all" ? undefined : value === "true",
+                    )
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="true">Active</SelectItem>
+                    <SelectItem value="false">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filters.sortBy}
+                  onValueChange={(value) => handleFilterChange("sortBy", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sort By" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="createdAt">Date Added</SelectItem>
+                    <SelectItem value="fullname">Name</SelectItem>
+                    <SelectItem value="gpa">GPA</SelectItem>
+                    <SelectItem value="academicYear">Academic Year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
@@ -654,149 +1369,340 @@ export default function SchoolDashboard() {
                         <input
                           type="checkbox"
                           className="h-4 w-4 rounded border-gray-300"
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedStudents(students.map(s => s.id));
-                            } else {
-                              setSelectedStudents([]);
-                            }
-                          }}
-                          checked={selectedStudents.length === students.length && students.length > 0}
+                          onChange={handleSelectAll}
+                          checked={
+                            selectedStudents.length === students.length &&
+                            students.length > 0
+                          }
                         />
                       </TableHead>
                       <TableHead>Name</TableHead>
-                      <TableHead>National ID</TableHead>
+                      <TableHead>Email</TableHead>
                       <TableHead>Academic Year</TableHead>
                       <TableHead>GPA</TableHead>
-                      <TableHead>Verification</TableHead>
-                      <TableHead>EAES Status</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Added On</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {students.map((student) => (
-                      <TableRow key={student.id}>
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300"
-                            checked={selectedStudents.includes(student.id)}
-                            onChange={() => handleToggleStudentSelection(student.id)}
-                          />
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {student.fullname}
-                        </TableCell>
-                        <TableCell>{student.nationalId}</TableCell>
-                        <TableCell>{student.academicYear}</TableCell>
-                        <TableCell>{student.gpa}</TableCell>
-                        <TableCell>
-                          <Badge variant={
-                            student.verificationStatus === 'Verified' ? "default" :
-                              student.verificationStatus === 'Pending' ? "secondary" : "destructive"
-                          }>
-                            {student.verificationStatus}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={student.isSubmitted ? "default" : "outline"}>
-                            {student.isSubmitted ? 'Submitted' : 'Pending'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button variant="ghost" size="sm">
-                              Edit
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              View
-                            </Button>
-                          </div>
+                    {loading.students ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-8">
+                          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
+                          <p className="text-gray-600">Loading students...</p>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : students.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-8">
+                          <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            No Students Found
+                          </h3>
+                          <p className="text-gray-600 mb-4">
+                            {filters.search || filters.academicYear !== "all"
+                              ? "No students match your filters"
+                              : "Add your first student to get started"}
+                          </p>
+                          <Button onClick={() => setIsAddStudentOpen(true)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Student
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      students.map((student) => (
+                        <TableRow key={student.id}>
+                          <TableCell>
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 rounded border-gray-300"
+                              checked={selectedStudents.includes(student.id)}
+                              onChange={() =>
+                                handleToggleStudentSelection(student.id)
+                              }
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {student.user?.fullname || student.fullname}
+                          </TableCell>
+                          <TableCell>
+                            {student.user?.email || student.email}
+                          </TableCell>
+                          <TableCell>{student.academicYear}</TableCell>
+                          <TableCell>{student.gpa || "N/A"}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                student.isActive ? "default" : "secondary"
+                              }
+                            >
+                              {student.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {student.createdAt
+                              ? format(
+                                  parseISO(student.createdAt),
+                                  "MMM dd, yyyy",
+                                )
+                              : "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewStudent(student.id)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
+
+                {/* Pagination */}
+                {students.length > 0 && (
+                  <div className="flex items-center justify-between border-t px-6 py-4">
+                    <div className="text-sm text-gray-700">
+                      Showing{" "}
+                      <span className="font-medium">
+                        {(pagination.page - 1) * pagination.limit + 1}
+                      </span>{" "}
+                      to{" "}
+                      <span className="font-medium">
+                        {Math.min(
+                          pagination.page * pagination.limit,
+                          pagination.total,
+                        )}
+                      </span>{" "}
+                      of <span className="font-medium">{pagination.total}</span>{" "}
+                      students
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(1)}
+                          disabled={pagination.page === 1 || loading.students}
+                          className="h-8 w-8 p-0"
+                        >
+                          <ChevronsLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(pagination.page - 1)}
+                          disabled={pagination.page === 1 || loading.students}
+                          className="h-8 w-8 p-0"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <span className="px-3 text-sm">
+                          Page {pagination.page} of {pagination.totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(pagination.page + 1)}
+                          disabled={
+                            pagination.page === pagination.totalPages ||
+                            loading.students
+                          }
+                          className="h-8 w-8 p-0"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            handlePageChange(pagination.totalPages)
+                          }
+                          disabled={
+                            pagination.page === pagination.totalPages ||
+                            loading.students
+                          }
+                          className="h-8 w-8 p-0"
+                        >
+                          <ChevronsRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Placements Tab */}
-        <TabsContent value="placements">
+        {/* Analytics Tab */}
+        <TabsContent value="analytics">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Student Placements</CardTitle>
-                  <CardDescription>
-                    View placement results from EAES
-                  </CardDescription>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Download className="mr-2 h-4 w-4" />
-                  Export Data
-                </Button>
-              </div>
+              <CardTitle>School Analytics</CardTitle>
+              <CardDescription>
+                Comprehensive analytics and insights
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              {placements.length === 0 ? (
+              {loading.analytics ? (
                 <div className="text-center py-12">
-                  <GraduationCap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Placements Yet</h3>
-                  <p className="text-gray-600">
-                    Placement results will appear here once released by EAES
-                  </p>
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+                  <p className="text-gray-600">Loading analytics...</p>
                 </div>
-              ) : (
-                <>
-                  <div className="mb-6 p-4 bg-green-50 rounded-lg">
-                    <div className="flex items-center gap-2 text-green-700">
-                      <GraduationCap className="h-5 w-5" />
-                      <span className="font-medium">Placements Released!</span>
-                    </div>
-                    <p className="text-sm text-green-600 mt-1">
-                      All students have been placed simultaneously. Results were released on {format(new Date(schoolProfile.placementReleaseDate), 'MMMM dd, yyyy')}.
-                    </p>
+              ) : analytics ? (
+                <div className="space-y-8">
+                  {/* Key Metrics */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              Total Students
+                            </p>
+                            <p className="text-2xl font-bold mt-1">
+                              {analytics.totalStudents}
+                            </p>
+                          </div>
+                          <Users className="h-8 w-8 text-blue-500" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              Active Students
+                            </p>
+                            <p className="text-2xl font-bold mt-1">
+                              {analytics.activeStudents}
+                            </p>
+                          </div>
+                          <UserCheck className="h-8 w-8 text-green-500" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              Average GPA
+                            </p>
+                            <p className="text-2xl font-bold mt-1">
+                              {analytics.averageGPA}
+                            </p>
+                          </div>
+                          <TrendingUp className="h-8 w-8 text-purple-500" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              Special Needs
+                            </p>
+                            <p className="text-2xl font-bold mt-1">
+                              {analytics.specialNeedsCount}
+                            </p>
+                          </div>
+                          <AlertTriangle className="h-8 w-8 text-orange-500" />
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
 
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Student Name</TableHead>
-                          <TableHead>University</TableHead>
-                          <TableHead>Program</TableHead>
-                          <TableHead>Placement Date</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {placements.map((placement) => (
-                          <TableRow key={placement.studentId}>
-                            <TableCell className="font-medium">{placement.studentName}</TableCell>
-                            <TableCell>{placement.university}</TableCell>
-                            <TableCell>{placement.program}</TableCell>
-                            <TableCell>
-                              {format(new Date(placement.placementDate), 'MMM dd, yyyy')}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="default">
-                                {placement.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="sm">
-                                View Details
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                  {/* Charts */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>
+                          Student Distribution by Academic Year
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="h-64">
+                        {analytics.yearDistribution &&
+                        analytics.yearDistribution.length > 0 ? (
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={analytics.yearDistribution}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="year" />
+                              <YAxis />
+                              <Tooltip />
+                              <Bar
+                                dataKey="count"
+                                fill="#8884d8"
+                                name="Student Count"
+                              />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        ) : (
+                          <div className="text-center py-8 text-gray-500">
+                            No distribution data available
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>GPA Distribution</CardTitle>
+                      </CardHeader>
+                      <CardContent className="h-64">
+                        {analytics.gpaDistribution &&
+                        analytics.gpaDistribution.length > 0 ? (
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={analytics.gpaDistribution}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ range, percent }) =>
+                                  `${range}: ${(percent * 100).toFixed(0)}%`
+                                }
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="count"
+                              >
+                                {analytics.gpaDistribution.map((_, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={COLORS[index % COLORS.length]}
+                                  />
+                                ))}
+                              </Pie>
+                              <Tooltip />
+                              <Legend />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        ) : (
+                          <div className="text-center py-8 text-gray-500">
+                            No GPA data available
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
                   </div>
-                </>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  No analytics data available
+                </div>
               )}
             </CardContent>
           </Card>
@@ -815,7 +1721,10 @@ export default function SchoolDashboard() {
                 </div>
                 <Button
                   variant="outline"
-                  onClick={() => setIsEditProfileOpen(true)}
+                  onClick={() => {
+                    setEditedProfile(schoolProfile);
+                    setIsEditProfileOpen(true);
+                  }}
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Profile
@@ -824,43 +1733,117 @@ export default function SchoolDashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">School Information</h3>
-                    <div className="mt-2 space-y-2">
-                      <p><span className="font-medium">School Name:</span> {schoolProfile.name}</p>
-                      <p><span className="font-medium">School ID:</span> {schoolProfile.schoolId}</p>
-                      <p><span className="font-medium">Type:</span> {schoolProfile.type}</p>
-                      <p><span className="font-medium">Region:</span> {schoolProfile.region}</p>
-                      <p><span className="font-medium">City:</span> {schoolProfile.city}</p>
+                    <h3 className="text-sm font-medium text-gray-500 mb-3">
+                      School Information
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-gray-500">School Name</p>
+                        <p className="font-medium">{schoolProfile.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">School Type</p>
+                        <Badge variant="secondary">{schoolProfile.type}</Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Location</p>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          <span>
+                            {schoolProfile.city?.name},{" "}
+                            {schoolProfile.city?.region?.name}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-3">
+                      Statistics
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-gray-500">Total Students</p>
+                        <p className="font-medium">
+                          {schoolProfile.stats?.totalStudents || 0}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Active Students</p>
+                        <p className="font-medium">
+                          {schoolProfile.stats?.activeStudents || 0}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Average GPA</p>
+                        <p className="font-medium">
+                          {schoolProfile.stats?.averageGPA?.toFixed(2) ||
+                            "0.00"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Contact Information</h3>
-                    <div className="mt-2 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-gray-400" />
-                        <span>{schoolProfile.email}</span>
+                    <h3 className="text-sm font-medium text-gray-500 mb-3">
+                      Contact Information
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-gray-500">Principal Name</p>
+                        <p className="font-medium">
+                          {schoolProfile.principalName || "Not specified"}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-gray-400" />
-                        <span>{schoolProfile.phone}</span>
+                      <div>
+                        <p className="text-sm text-gray-500">Email</p>
+                        <div className="flex items-center gap-1">
+                          <Mail className="w-4 h-4 text-gray-400" />
+                          <span>
+                            {schoolProfile.contactEmail || "Not specified"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        <span>{schoolProfile.region}, {schoolProfile.city}</span>
+                      <div>
+                        <p className="text-sm text-gray-500">Phone</p>
+                        <div className="flex items-center gap-1">
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <span>
+                            {schoolProfile.contactPhone || "Not specified"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">EAES Timeline</h3>
-                    <div className="mt-2 space-y-2">
-                      <p><span className="font-medium">Submission Deadline:</span> {format(new Date(schoolProfile.submissionDeadline), 'MMM dd, yyyy')}</p>
-                      <p><span className="font-medium">Placement Release:</span> {format(new Date(schoolProfile.placementReleaseDate), 'MMM dd, yyyy')}</p>
+                    <h3 className="text-sm font-medium text-gray-500 mb-3">
+                      EAES Timeline
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-gray-500">
+                          Submission Deadline
+                        </p>
+                        <p className="font-medium">June 15, 2024</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">
+                          Placement Release
+                        </p>
+                        <p className="font-medium">August 30, 2024</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Current Status</p>
+                        <Badge variant="outline" className="bg-blue-50">
+                          Active
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -886,9 +1869,9 @@ export default function SchoolDashboard() {
                   <Label htmlFor="fullname">Full Name *</Label>
                   <Input
                     id="fullname"
-                    value={newStudent.fullname}
+                    value={newStudent.user.fullname}
                     onChange={(e) =>
-                      handleInputChange("fullname", e.target.value)
+                      handleInputChange("user", "fullname", e.target.value)
                     }
                     placeholder="John Doe"
                     required
@@ -899,8 +1882,10 @@ export default function SchoolDashboard() {
                   <Input
                     id="email"
                     type="email"
-                    value={newStudent.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    value={newStudent.user.email}
+                    onChange={(e) =>
+                      handleInputChange("user", "email", e.target.value)
+                    }
                     placeholder="john@example.com"
                     required
                   />
@@ -912,8 +1897,10 @@ export default function SchoolDashboard() {
                   <Label htmlFor="phone">Phone Number *</Label>
                   <Input
                     id="phone"
-                    value={newStudent.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    value={newStudent.user.phone}
+                    onChange={(e) =>
+                      handleInputChange("user", "phone", e.target.value)
+                    }
                     placeholder="+251911234567"
                     required
                   />
@@ -922,9 +1909,9 @@ export default function SchoolDashboard() {
                   <Label htmlFor="nationalId">National ID *</Label>
                   <Input
                     id="nationalId"
-                    value={newStudent.nationalId}
+                    value={newStudent.student.nationalId}
                     onChange={(e) =>
-                      handleInputChange("nationalId", e.target.value)
+                      handleInputChange("student", "nationalId", e.target.value)
                     }
                     placeholder="123456789"
                     required
@@ -938,9 +1925,9 @@ export default function SchoolDashboard() {
                   <Input
                     id="birthDate"
                     type="date"
-                    value={newStudent.birthDate}
+                    value={newStudent.student.birthDate}
                     onChange={(e) =>
-                      handleInputChange("birthDate", e.target.value)
+                      handleInputChange("student", "birthDate", e.target.value)
                     }
                     required
                   />
@@ -948,9 +1935,9 @@ export default function SchoolDashboard() {
                 <div className="space-y-2">
                   <Label htmlFor="academicYear">Academic Year *</Label>
                   <Select
-                    value={newStudent.academicYear}
+                    value={newStudent.student.academicYear}
                     onValueChange={(value) =>
-                      handleInputChange("academicYear", value)
+                      handleInputChange("student", "academicYear", value)
                     }
                   >
                     <SelectTrigger>
@@ -969,9 +1956,9 @@ export default function SchoolDashboard() {
                 <div className="space-y-2">
                   <Label htmlFor="gender">Gender *</Label>
                   <Select
-                    value={newStudent.gender}
+                    value={newStudent.user.gender}
                     onValueChange={(value) =>
-                      handleInputChange("gender", value)
+                      handleInputChange("user", "gender", value)
                     }
                   >
                     <SelectTrigger>
@@ -984,29 +1971,30 @@ export default function SchoolDashboard() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="gpa">GPA *</Label>
+                  <Label htmlFor="gpa">GPA</Label>
                   <Input
                     id="gpa"
                     type="number"
-                    step="0.01"
+                    step="1"
                     min="0"
-                    max="4"
-                    value={newStudent.gpa}
-                    onChange={(e) => handleInputChange("gpa", e.target.value)}
+                    max="600"
+                    value={newStudent.student.gpa || ""}
+                    onChange={(e) =>
+                      handleInputChange("student", "gpa", e.target.value)
+                    }
                     placeholder="3.8"
-                    required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Temporary Password</Label>
+                <Label htmlFor="password">Temporary Password *</Label>
                 <Input
                   id="password"
                   type="password"
-                  value={newStudent.password}
+                  value={newStudent.user.password}
                   onChange={(e) =>
-                    handleInputChange("password", e.target.value)
+                    handleInputChange("user", "password", e.target.value)
                   }
                   placeholder="Create a temporary password"
                   required
@@ -1020,9 +2008,13 @@ export default function SchoolDashboard() {
                 <input
                   type="checkbox"
                   id="specialNeed"
-                  checked={newStudent.specialNeed}
+                  checked={newStudent.student.specialNeed}
                   onChange={(e) =>
-                    handleInputChange("specialNeed", e.target.checked)
+                    handleInputChange(
+                      "student",
+                      "specialNeed",
+                      e.target.checked,
+                    )
                   }
                   className="h-4 w-4 rounded border-gray-300"
                 />
@@ -1035,10 +2027,20 @@ export default function SchoolDashboard() {
                 type="button"
                 variant="outline"
                 onClick={() => setIsAddStudentOpen(false)}
+                disabled={loading.submitting}
               >
                 Cancel
               </Button>
-              <Button type="submit">Register Student</Button>
+              <Button type="submit" disabled={loading.submitting}>
+                {loading.submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  "Register Student"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1061,10 +2063,10 @@ export default function SchoolDashboard() {
                 <span className="font-medium">Important Information</span>
               </div>
               <p className="text-sm text-blue-600 mt-2">
-                • All students will receive placements simultaneously on the release date<br />
-                • Only verified students can be submitted<br />
-                • Submissions are final and cannot be edited<br />
-                • Placements will be released on {format(new Date(schoolProfile.placementReleaseDate), 'MMMM dd, yyyy')}
+                • Only verified students can be submitted
+                <br />
+                • Submissions are final and cannot be edited
+                <br />• Ensure all student data is correct before submission
               </p>
             </div>
 
@@ -1072,21 +2074,29 @@ export default function SchoolDashboard() {
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="font-medium">Verified & Ready Students</span>
                 <span className="font-bold text-blue-600">
-                  {students.filter(s => s.verificationStatus === 'Verified' && !s.isSubmitted).length}
+                  {
+                    students.filter(
+                      (s) =>
+                        !s.isSubmitted && s.verificationStatus === "verified",
+                    ).length
+                  }
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="font-medium">Already Submitted</span>
                 <span className="font-bold text-green-600">
-                  {students.filter(s => s.isSubmitted).length}
+                  {students.filter((s) => s.isSubmitted).length}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="font-medium">Pending Verification</span>
                 <span className="font-bold text-yellow-600">
-                  {students.filter(s => s.verificationStatus === 'Pending').length}
+                  {
+                    students.filter((s) => s.verificationStatus !== "verified")
+                      .length
+                  }
                 </span>
               </div>
             </div>
@@ -1097,16 +2107,97 @@ export default function SchoolDashboard() {
               type="button"
               variant="outline"
               onClick={() => setIsSubmitAllOpen(false)}
+              disabled={loading.submitting}
             >
               Cancel
             </Button>
             <Button
               type="button"
               onClick={handleSubmitAllToEAES}
-              disabled={!canSubmitToEAES}
+              disabled={!canSubmitToEAES || loading.submitting}
             >
-              <Send className="mr-2 h-4 w-4" />
-              Submit All Verified Students
+              {loading.submitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Submit All Verified Students
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Student Dialog */}
+      <Dialog open={isViewStudentOpen} onOpenChange={setIsViewStudentOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Student Details</DialogTitle>
+            <DialogDescription>
+              View student information and records
+            </DialogDescription>
+          </DialogHeader>
+          {selectedStudent && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Full Name</Label>
+                  <p className="font-medium">
+                    {selectedStudent.user?.fullname}
+                  </p>
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <p className="font-medium">{selectedStudent.user?.email}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>National ID</Label>
+                  <p className="font-medium">{selectedStudent.nationalId}</p>
+                </div>
+                <div>
+                  <Label>Academic Year</Label>
+                  <p className="font-medium">{selectedStudent.academicYear}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>GPA</Label>
+                  <p className="font-medium">{selectedStudent.gpa || "N/A"}</p>
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <Badge
+                    variant={selectedStudent.isActive ? "default" : "secondary"}
+                  >
+                    {selectedStudent.isActive ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+              </div>
+              <div>
+                <Label>Special Needs</Label>
+                <p className="font-medium">
+                  {selectedStudent.specialNeed ? "Yes" : "No"}
+                </p>
+              </div>
+              <div>
+                <Label>School</Label>
+                <p className="font-medium">{selectedStudent.school?.name}</p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsViewStudentOpen(false)}
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1124,11 +2215,20 @@ export default function SchoolDashboard() {
           <form onSubmit={handleUpdateProfile}>
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="principalName">Principal Name</Label>
+                <Label htmlFor="name">School Name</Label>
                 <Input
-                  id="principalName"
-                  value={editedProfile.principalName}
-                  onChange={(e) => handleProfileChange('principalName', e.target.value)}
+                  id="name"
+                  value={editedProfile.name || ""}
+                  onChange={(e) => handleProfileChange("name", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="type">School Type</Label>
+                <Input
+                  id="type"
+                  value={editedProfile.type || ""}
+                  onChange={(e) => handleProfileChange("type", e.target.value)}
                 />
               </div>
 
@@ -1137,8 +2237,10 @@ export default function SchoolDashboard() {
                   <Label htmlFor="phone">Phone</Label>
                   <Input
                     id="phone"
-                    value={editedProfile.phone}
-                    onChange={(e) => handleProfileChange('phone', e.target.value)}
+                    value={editedProfile.contactPhone || ""}
+                    onChange={(e) =>
+                      handleProfileChange("contactPhone", e.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -1146,28 +2248,12 @@ export default function SchoolDashboard() {
                   <Input
                     id="email"
                     type="email"
-                    value={editedProfile.email}
-                    onChange={(e) => handleProfileChange('email', e.target.value)}
+                    value={editedProfile.contactEmail || ""}
+                    onChange={(e) =>
+                      handleProfileChange("contactEmail", e.target.value)
+                    }
                   />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="region">Region</Label>
-                <Input
-                  id="region"
-                  value={editedProfile.region}
-                  onChange={(e) => handleProfileChange('region', e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  value={editedProfile.city}
-                  onChange={(e) => handleProfileChange('city', e.target.value)}
-                />
               </div>
             </div>
 

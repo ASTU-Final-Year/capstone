@@ -16,6 +16,8 @@ import { config } from "./config";
 import { adminsRouter } from "./routes/api/admins.route";
 import { regionsRouter } from "./routes/api/regions.route";
 import { citiesRouter } from "./routes/api/cities.route";
+import { schoolRouter } from "./routes/api/school.route";
+import { hashPassword } from "./services/user.service";
 
 const router = new Router<CTXMain>({
   defaultHeaders: [["x-powered-by", "@bepalo/router"]],
@@ -69,7 +71,7 @@ router.filter(
         `${config.url}:${config.port}`,
         `${config.url}:${config.frontendPort}`,
       ],
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: ["Content-Type", "Authorization", "Cache-Control"],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
       credentials: true,
     }),
@@ -99,6 +101,7 @@ router.append("/api/admins", adminsRouter);
 router.append("/api/super-admin", superAdminRouter);
 router.append("/api/regions", regionsRouter);
 router.append("/api/cities", citiesRouter);
+router.append("/api/school", schoolRouter);
 
 Bun.serve({
   port: config.port,

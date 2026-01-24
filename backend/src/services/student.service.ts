@@ -1,4 +1,4 @@
-import { eq, and, or, sql } from "drizzle-orm";
+import { eq, and, or, sql, inArray } from "drizzle-orm";
 import { db } from "../db";
 import {
   cities,
@@ -230,4 +230,71 @@ export const updateStudentProfile = async (
     .returning();
 
   return updated || null;
+};
+
+export const getStudents = async (
+  schoolId: string,
+  filters?: {
+    isActive?: boolean;
+    academicYear?: string;
+    hasSubmission?: boolean;
+    limit?: number;
+  },
+): Promise<(Student & { user: User })[]> => {
+  const conditions = [eq(students.schoolId, schoolId)];
+
+  if (filters?.isActive !== undefined) {
+    conditions.push(eq(students.isActive, filters.isActive));
+  }
+
+  if (filters?.academicYear) {
+    conditions.push(eq(students.academicYear, filters.academicYear));
+  }
+
+  const query = db
+    .select({
+      student: students,
+      user: users,
+    })
+    .from(students)
+    .innerJoin(users, eq(students.id, users.id))
+    .where(and(...conditions));
+
+  if (filters?.limit) {
+    query.limit(filters.limit);
+  }
+
+  const results = await query;
+
+  if (filters?.hasSubmission !== undefined && results.length > 0) {
+    // Filter students who have/haven't submitted
+    const studentIds = results.map((r) => r.student.id);
+
+    if (studentIds.length === 0) {
+      return [];
+    }
+
+    const submissions = await db
+      .select({ studentId: student_submissions.studentId })
+      .from(student_submissions)
+      .where(inArray(student_submissions.studentId, studentIds));
+
+    const submittedStudentIds = new Set(submissions.map((s) => s.studentId));
+
+    return results
+      .filter((r) =>
+        filters.hasSubmission
+          ? submittedStudentIds.has(r.student.id)
+          : !submittedStudentIds.has(r.student.id),
+      )
+      .map((r) => ({
+        ...r.student,
+        user: r.user as User,
+      }));
+  }
+
+  return results.map((r) => ({
+    ...r.student,
+    user: r.user as User,
+  }));
 };
