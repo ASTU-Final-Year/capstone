@@ -712,7 +712,9 @@ export default function CityDashboard() {
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">Average GPA</span>
                       <span className="font-medium">
-                        {stats?.averageGPA?.toFixed(2) || "N/A"}
+                        {typeof stats?.averageGPA === "number"
+                          ? stats.averageGPA.toFixed(2)
+                          : "N/A"}
                       </span>
                     </div>
 
@@ -883,8 +885,8 @@ export default function CityDashboard() {
                           </TableCell>
                           <TableCell>
                             <div className="font-medium">
-                              {school.averageGPA
-                                ? school.averageGPA.toFixed(2)
+                              {typeof stats?.averageGPA === "number"
+                                ? stats.averageGPA.toFixed(2)
                                 : "N/A"}
                             </div>
                           </TableCell>
