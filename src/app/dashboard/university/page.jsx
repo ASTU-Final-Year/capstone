@@ -313,11 +313,11 @@ export default function UniversityDashboard() {
 
                 <Tabs defaultValue="applications" className="space-y-8">
                     <TabsList className="grid grid-cols-5 w-full">
-                        <TabsTrigger value="applications">Applications</TabsTrigger>
+                        
                         <TabsTrigger value="placements">Placements</TabsTrigger>
-                        <TabsTrigger value="profile">Profile</TabsTrigger>
+                       
                         <TabsTrigger value="capacity">Capacity</TabsTrigger>
-                        <TabsTrigger value="settings">Settings</TabsTrigger>
+                        <TabsTrigger value="settings">Profile</TabsTrigger>
                     </TabsList>
 
                     {/* Placements Tab */}
@@ -453,161 +453,7 @@ export default function UniversityDashboard() {
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="profile">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Admin Profile</CardTitle>
-                                <CardDescription>Manage your account settings and preferences</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-6">
-                                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                                        <div className="text-center md:text-left">
-                                            <Avatar className="w-24 h-24 mx-auto md:mx-0">
-                                                <AvatarImage
-                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${university.abbreviation}-admin`}
-                                                />
-                                                <AvatarFallback>{university.abbreviation}</AvatarFallback>
-                                            </Avatar>
-                                            <Button variant="outline" size="sm" className="mt-4">
-                                                Change Photo
-                                            </Button>
-                                        </div>
-
-                                        <div className="flex-1 space-y-2">
-                                            <div>
-                                                <h3 className="text-xl font-bold">University Administrator</h3>
-                                                <p className="text-muted-foreground">{university.name}</p>
-                                            </div>
-                                            <div className="flex items-center gap-4 text-sm">
-                                                <div className="flex items-center gap-2">
-                                                    <Mail className="w-4 h-4" />
-                                                    <span>admin@{university.abbreviation.toLowerCase()}.edu.et</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Phone className="w-4 h-4" />
-                                                    <span>+251 11 987 6543</span>
-                                                </div>
-                                            </div>
-                                            <Badge variant="secondary">University Administrator</Badge>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        <div className="space-y-4">
-                                            <h3 className="font-bold text-lg">Personal Information</h3>
-                                            <div>
-                                                <label className="text-sm font-medium mb-2 block">Full Name</label>
-                                                <Input placeholder="Enter your full name" defaultValue="John Doe" />
-                                            </div>
-                                            <div>
-                                                <label className="text-sm font-medium mb-2 block">Email Address</label>
-                                                <Input type="email" placeholder="Enter your email" defaultValue="admin@aau.edu.et" />
-                                            </div>
-                                            <div>
-                                                <label className="text-sm font-medium mb-2 block">Phone Number</label>
-                                                <Input placeholder="Enter your phone number" defaultValue="+251 11 987 6543" />
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <h3 className="font-bold text-lg">Account Security</h3>
-                                            <div>
-                                                <label className="text-sm font-medium mb-2 block">Current Password</label>
-                                                <Input type="password" placeholder="Enter current password" />
-                                            </div>
-                                            <div>
-                                                <label className="text-sm font-medium mb-2 block">New Password</label>
-                                                <Input type="password" placeholder="Enter new password" />
-                                            </div>
-                                            <div>
-                                                <label className="text-sm font-medium mb-2 block">Confirm New Password</label>
-                                                <Input type="password" placeholder="Confirm new password" />
-                                            </div>
-                                            <div className="pt-2">
-                                                <Button variant="outline" className="w-full">
-                                                    Change Password
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <h3 className="font-bold text-lg">Notification Preferences</h3>
-                                        <div className="space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="font-medium">Application Notifications</p>
-                                                    <p className="text-sm text-muted-foreground">Get notified when new applications arrive</p>
-                                                </div>
-                                                <input type="checkbox" className="toggle" defaultChecked />
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="font-medium">Placement Alerts</p>
-                                                    <p className="text-sm text-muted-foreground">Receive alerts for placement decisions</p>
-                                                </div>
-                                                <input type="checkbox" className="toggle" defaultChecked />
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="font-medium">System Updates</p>
-                                                    <p className="text-sm text-muted-foreground">Notifications about system maintenance</p>
-                                                </div>
-                                                <input type="checkbox" className="toggle" defaultChecked />
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="font-medium">Email Digest</p>
-                                                    <p className="text-sm text-muted-foreground">Daily summary of university activities</p>
-                                                </div>
-                                                <input type="checkbox" className="toggle" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <h3 className="font-bold text-lg">System Access & Permissions</h3>
-                                        <div className="space-y-2">
-                                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                                <div>
-                                                    <p className="font-medium">View Applications</p>
-                                                    <p className="text-sm text-muted-foreground">Access student applications</p>
-                                                </div>
-                                                <Badge variant="default">Allowed</Badge>
-                                            </div>
-                                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                                <div>
-                                                    <p className="font-medium">Review Placements</p>
-                                                    <p className="text-sm text-muted-foreground">Approve or reject placements</p>
-                                                </div>
-                                                <Badge variant="default">Allowed</Badge>
-                                            </div>
-                                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                                <div>
-                                                    <p className="font-medium">Edit University Info</p>
-                                                    <p className="text-sm text-muted-foreground">Update university details</p>
-                                                </div>
-                                                <Badge variant="default">Allowed</Badge>
-                                            </div>
-                                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                                <div>
-                                                    <p className="font-medium">Manage Users</p>
-                                                    <p className="text-sm text-muted-foreground">Add/remove university staff</p>
-                                                </div>
-                                                <Badge variant="secondary">Not Allowed</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col sm:flex-row gap-3 justify-end pt-4 border-t">
-                                        <Button variant="outline">Cancel</Button>
-                                        <Button>Save Profile Changes</Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+                   
 
                     <TabsContent value="settings">
                         <Card>
