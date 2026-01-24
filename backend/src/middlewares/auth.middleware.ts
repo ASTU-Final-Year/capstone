@@ -49,7 +49,7 @@ export const authenticate = (
           : json({ error: "Invalid or expired session" }, { status: 401 });
       }
       ctx.session = userAndSession.session;
-      ctx.session.user = ctx.user;
+      ctx.session.user = userAndSession.user;
       ctx.user = userAndSession.user;
     }
   };
