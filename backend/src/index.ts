@@ -8,16 +8,18 @@ import {
 } from "@bepalo/router";
 import { Time } from "@bepalo/time";
 import { userRouter } from "./routes/api/user.route";
-import { isProduction, port, url, type CTXMain } from "./base";
+import type { CTXMain } from "./base";
 import { sessionRouter } from "./routes/api/session.route";
 import { populateDb } from "./db";
+import { superAdminRouter } from "./routes/api/super-admin";
+import { config } from "./config";
 
 const router = new Router<CTXMain>({
   defaultHeaders: [["x-powered-by", "@bepalo/router"]],
-  defaultCatcher: isProduction
+  defaultCatcher: config.isProduction
     ? undefined
     : (_req, ctx) => {
-        if (!isProduction) {
+        if (!config.isProduction) {
           console.error(ctx.error);
         }
         return status(500);
@@ -49,6 +51,7 @@ router.filter(
     "PUT /api/.**",
     "PATCH /api/.**",
     "DELETE /api/.**",
+    "OPTIONS /api/.**",
   ],
   [
     limitRate({
@@ -59,9 +62,13 @@ router.filter(
       setXRateLimitHeaders: true,
     }),
     cors({
-      origins: ["http://localhost:" + port, `${url}:${port}`],
+      origins: [
+        `${config.url}:${config.port}`,
+        `${config.url}:${config.frontendPort}`,
+      ],
       allowedHeaders: ["Content-Type", "Authorization"],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+      credentials: true,
     }),
     () => true, // break from upper filters
   ],
@@ -76,7 +83,7 @@ router.catch(
     "DELETE /api/.**",
   ],
   (req, { error }) => {
-    if (!isProduction) {
+    if (!config.isProduction) {
       console.error(error);
     }
     return json({ error: error.message, status: 500 }, { status: 500 });
@@ -86,17 +93,22 @@ router.catch(
 router.append("/api/user", userRouter);
 router.append("/api/session", sessionRouter);
 
+// Super admin routes
+router.append("/api/super-admin", superAdminRouter);
+
 Bun.serve({
-  port,
-  development: !isProduction,
+  port: config.port,
+  development: !config.isProduction,
   reusePort: true,
-  fetch: (req, server) => {
+  fetch: async (req, server) => {
     const address = server.requestIP(req) as SocketAddress | null;
     if (!address) throw new Error("null client address");
-    return router.respond(req, { address });
+    const resp = await router.respond(req, { address });
+    console.log(`${req.method} ${req.url} ${resp.status} ${resp.statusText}`);
+    return resp;
   },
 });
 
 populateDb();
 
-console.log(`Backend server listening on ${url}:${port}`);
+console.log(`Backend server listening on ${config.url}:${config.port}`);

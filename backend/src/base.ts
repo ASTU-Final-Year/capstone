@@ -1,10 +1,6 @@
 import { JWT, type JwtPayload, type JwtSymmetricAlgorithm } from "@bepalo/jwt";
 import type { CTXAddress, RouterContext } from "@bepalo/router";
 
-export const port = parseInt(Bun.env.BACKEND_PORT || "") || 4000;
-export const url = Bun.env.URL || "http://localhost";
-export const isProduction = Bun.env.NODE_ENV === "production";
-
 if (!Bun.env.JWT_AUTH_KEY) throw new Error("null env JWT_AUTH_KEY");
 if (!Bun.env.JWT_AUTH_ALG) throw new Error("null env JWT_AUTH_ALG");
 const authJwtKey = Bun.env.JWT_AUTH_KEY;

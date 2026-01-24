@@ -1,6 +1,11 @@
 import { Time } from "@bepalo/time";
 
 export const config = {
+  port: parseInt(Bun.env.BACKEND_PORT || "") || 4000,
+  frontendPort: parseInt(Bun.env.PORT || "") || 3000,
+  url: Bun.env.URL || "http://localhost",
+  isProduction: Bun.env.NODE_ENV === "production",
+
   emailDomain: Bun.env.EMAIL_DOMAIN || "choicex.gov.et",
 };
 

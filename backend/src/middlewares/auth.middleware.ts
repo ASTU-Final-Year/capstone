@@ -6,19 +6,8 @@ import {
   type Handler,
   type RouterContext,
 } from "@bepalo/router";
-import {
-  jwts,
-  Permission,
-  ROLES,
-  PERMISSIONS,
-  Role,
-  type CTXSession,
-  type Session,
-  type User,
-} from "../base";
-import type { JWT, JwtPayload } from "@bepalo/jwt";
+import { jwts, Permission, PERMISSIONS, Role, type CTXSession } from "../base";
 import { getUserAndSessionBySession } from "../services/session.service";
-import { getUserWithAdminDetails } from "../services/user.service";
 
 interface AuthenticateOptions {
   checkOnly?: boolean;

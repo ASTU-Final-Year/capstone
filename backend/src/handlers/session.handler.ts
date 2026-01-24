@@ -6,7 +6,7 @@ import {
   type CTXBody,
   type Handler,
 } from "@bepalo/router";
-import { isProduction, type CTXMain } from "../base";
+import type { CTXMain } from "../base";
 import type { CTXBodyLogin } from "../routes/api/session.route";
 import {
   deleteSession as servDeleteSession,
@@ -14,7 +14,7 @@ import {
 } from "../services/session.service";
 import { authenticateUser } from "../services/user.service";
 import { Time } from "@bepalo/time";
-import { securityConfig } from "../config";
+import { config, securityConfig } from "../config";
 
 export const createSession =
   (): Handler<CTXMain & CTXBodyLogin> => async (_req, ctx) => {
@@ -32,7 +32,7 @@ export const createSession =
           setCookie(securityConfig.sessionCookie, sessionId, {
             path: "/",
             httpOnly: true,
-            secure: isProduction,
+            secure: config.isProduction,
             expires: Time.after(24).hours.fromNow()._ms,
             sameSite: "Strict",
           }),

@@ -58,4 +58,7 @@ sessionRouter.handle<CTXCookie & CTXBodyLogin>(
 );
 
 // delete the session. (Logout)
-sessionRouter.handle<CTXCookie>(["DELETE /"], [parseCookie(), deleteSession()]);
+sessionRouter.handle<CTXCookie>(
+  ["DELETE /"],
+  [parseCookie(), authenticate(), deleteSession()],
+);
