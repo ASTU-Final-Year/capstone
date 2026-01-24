@@ -1086,7 +1086,7 @@ export default function CityDashboard() {
                                   name: e.target.value,
                                 })
                               }
-                              placeholder="e.g., John Doe"
+                              placeholder="e.g., Million Abebe"
                             />
                           </div>
 
@@ -1102,7 +1102,7 @@ export default function CityDashboard() {
                                   email: e.target.value,
                                 })
                               }
-                              placeholder="e.g., principal@school.edu.et"
+                              placeholder="e.g., stmary@school.edu.et"
                             />
                           </div>
 

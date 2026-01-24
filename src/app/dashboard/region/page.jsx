@@ -837,7 +837,7 @@ export default function RegionDashboard() {
                                 name: e.target.value,
                               })
                             }
-                            placeholder="e.g., John Doe"
+                            placeholder="e.g., abebe gizaw"
                           />
                         </div>
                         <div className="space-y-2">
@@ -852,7 +852,7 @@ export default function RegionDashboard() {
                                 email: e.target.value,
                               })
                             }
-                            placeholder="e.g., admin@city.gov.et"
+                            placeholder="e.g., abebe@city.gov.et"
                           />
                         </div>
                         <div className="space-y-2">

@@ -81,8 +81,8 @@ export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState({
     id: "stu_001",
-    fullname: "John Doe",
-    email: "john@example.com",
+    fullname: "Geremew yohannes",
+    email: "Geremew@example.com",
     nationalId: "ET-123456789",
     birthDate: "2005-05-15",
     academicYear: "2024",
@@ -191,7 +191,7 @@ export default function StudentDashboard() {
     {
       id: "uni_006",
       name: "University of Gondar",
-      abbreviation: "UoG",
+      abbreviation: "GU",
       location: "Gondar",
       type: "Public",
       established: 1954,
