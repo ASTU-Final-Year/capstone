@@ -15,7 +15,7 @@
   "dependencies": {
     "@bepalo/cache": "^1.0.3",
     "@bepalo/jwt": "^2.0.9",
-    "@bepalo/router": "^1.1.10",
+    "@bepalo/router": "^1.1.11",
     "@bepalo/time": "^1.2.11",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

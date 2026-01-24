@@ -59,7 +59,9 @@ adminsRouter.handle<CTXCookie>("GET /:role", [
 adminsRouter.handle<CTXCookie & CTXBody & { body: CreateAdminBody }>("POST /", [
   parseCookie(),
   authenticate(),
-  authorize({ roles: ["super_admin"] }),
+  authorize({
+    roles: ["region_admin", "city_admin", "school_admin", "university_admin"],
+  }),
   parseBody({
     accept: ["application/json", "application/x-www-form-urlencoded"],
     maxSize: 1024,

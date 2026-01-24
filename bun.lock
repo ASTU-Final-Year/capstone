@@ -7,7 +7,7 @@
       "dependencies": {
         "@bepalo/cache": "^1.0.3",
         "@bepalo/jwt": "^2.0.9",
-        "@bepalo/router": "^1.1.10",
+        "@bepalo/router": "^1.1.11",
         "@bepalo/time": "^1.2.11",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
@@ -124,7 +124,7 @@
 
     "@bepalo/jwt": ["@bepalo/jwt@2.0.9", "", { "dependencies": { "@bepalo/time": "^1.2.11" } }, "sha512-DPISx1Z8pGxL+MhYWFi3tgoER6MO+0R1N5NRSTt8Evl94t7ING/GNFriRoBbC1o8yGISsAfWiVMPvF1cVjS7tg=="],
 
-    "@bepalo/router": ["@bepalo/router@1.1.10", "", { "dependencies": { "@bepalo/cache": "^1.0.3", "@bepalo/jwt": "^2.0.9", "@bepalo/time": "^1.2.11" } }, "sha512-rCjY+Wf4yBdVAFeNIIRq+j/v5eswGSRfSo5GApCaowExUQ3T38+caOhxxa68rkFYa8w0AdSye/Mo+xcvAE2usA=="],
+    "@bepalo/router": ["@bepalo/router@1.1.11", "", { "dependencies": { "@bepalo/cache": "^1.0.3", "@bepalo/jwt": "^2.0.9", "@bepalo/time": "^1.2.11" } }, "sha512-4dYO8uTZ6MrcihfxmcsbrbWdU7kikzpo/5khLeJAIkIMv3S0RJzXAhAvKa/IYbOAoHWM3vRUWWBc6AKFD9Uolg=="],
 
     "@bepalo/time": ["@bepalo/time@1.2.11", "", {}, "sha512-A6a4gh3vScUK0AyUS9mTdRHgEJvU7jElLgI8URFqlOQvH48ZTesIKy2rJ5cd3j5Cp72jzvMZQhGy9EaqH7OM5g=="],
 

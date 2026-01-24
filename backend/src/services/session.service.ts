@@ -125,6 +125,7 @@ export const getUserAndSessionBySession = async (
       email: users.email,
       gender: users.gender,
       phone: users.phone,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })

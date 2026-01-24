@@ -1,8 +1,9 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { Admin, Region, Role, University, User } from "../base";
 import { db } from "../db";
 import {
   admins,
+  cities,
   regions,
   schools,
   student_submissions,
@@ -17,6 +18,106 @@ import { createUser } from "./user.service";
 export const getAllUsers = async (): Promise<User[]> => {
   const userResults = await db.select().from(users).orderBy(users.createdAt);
   return userResults as User[];
+};
+
+export const getAdminsByRoleAndTarget = async (
+  role: string,
+  targetId: string,
+) => {
+  try {
+    // Get all admins with the specified role and target ID
+    const adminRecords = await db
+      .select({
+        admin: admins,
+        user: users,
+      })
+      .from(admins)
+      .innerJoin(users, eq(admins.userId, users.id))
+      .where(eq(users.role, role));
+    // .where(and(eq(users.role, role), eq(admins.targetId, targetId)));
+    // Enrich with target info
+    const enrichedAdmins = await Promise.all(
+      adminRecords.map(async (record) => {
+        const { admin, user } = record;
+        let targetInfo = null;
+
+        // Get target info based on role
+        switch (role) {
+          case "region_admin":
+            const [region] = await db
+              .select()
+              .from(regions)
+              .where(eq(regions.id, targetId))
+              .limit(1);
+            targetInfo = region;
+            break;
+
+          case "city_admin":
+            const [city] = await db
+              .select({
+                city: cities,
+                region: regions,
+              })
+              .from(cities)
+              .innerJoin(regions, eq(cities.regionId, regions.id))
+              .where(eq(cities.id, targetId))
+              .limit(1);
+            targetInfo = city;
+            break;
+
+          case "school_admin":
+            const [school] = await db
+              .select({
+                school: schools,
+                city: cities,
+                region: regions,
+              })
+              .from(schools)
+              .innerJoin(cities, eq(schools.cityId, cities.id))
+              .innerJoin(regions, eq(cities.regionId, regions.id))
+              .where(eq(schools.id, targetId))
+              .limit(1);
+            targetInfo = school;
+            break;
+
+          case "university_admin":
+            const [university] = await db
+              .select({
+                university: universities,
+                region: regions,
+              })
+              .from(universities)
+              .innerJoin(regions, eq(universities.regionId, regions.id))
+              .where(eq(universities.id, targetId))
+              .limit(1);
+            targetInfo = university;
+            break;
+        }
+
+        return {
+          id: admin.id,
+          userId: admin.userId,
+          targetId: admin.targetId,
+          user: {
+            id: user.id,
+            fullname: user.fullname,
+            email: user.email,
+            phone: user.phone,
+            gender: user.gender,
+            role: user.role,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+          },
+          targetInfo,
+        };
+      }),
+    );
+
+    return enrichedAdmins;
+  } catch (error) {
+    console.error("Error fetching admins by role and target:", error);
+    throw new Error("Failed to fetch admins");
+  }
 };
 
 // Get system statistics

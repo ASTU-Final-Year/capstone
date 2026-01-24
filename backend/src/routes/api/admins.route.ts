@@ -1,4 +1,4 @@
-// routes/api/admin_users.route.ts
+// routes/api/admin.route.ts
 import {
   Router,
   parseBody,
@@ -9,29 +9,65 @@ import {
 import { authenticate, authorize } from "../../middlewares/auth.middleware";
 import { CTXMain } from "../../base";
 import {
-  getAdminUserDetails,
   getAllAdminUsers,
   updateAdminUser,
   assignRegionToAdmin,
   removeRegionFromAdmin,
-} from "../../services/admin_user.service";
+  getUserDetails,
+} from "../../services/admin.service";
+import {
+  getAdminsByRoleAndTarget,
+  getAllAdminsByRole,
+} from "../../services/super_admin.service";
 
-export const adminUsersRouter = new Router<CTXMain>();
+export const adminsRouter = new Router<CTXMain>();
 
-// Get user details (for admin management)
-adminUsersRouter.handle<CTXCookie>("GET /user/:userId", [
+// Get all admins by role
+adminsRouter.handle<CTXCookie>("GET /:role", [
   parseCookie(),
   authenticate(),
-  authorize({ roles: ["super_admin"] }),
+  authorize({
+    roles: ["super_admin", "region_admin", "city_admin", "school_admin"],
+  }),
+  async (req, { params }) => {
+    const role = params.role;
+    const validRoles = [
+      "region_admin",
+      "city_admin",
+      "school_admin",
+      "university_admin",
+    ];
+
+    if (!validRoles.includes(role)) {
+      return json({ error: "Invalid admin role" }, { status: 400 });
+    }
+
+    try {
+      const admins = await getAllAdminsByRole(role as any);
+      return json({ admins, success: true });
+    } catch (error) {
+      return json({ error: "Failed to fetch admins" }, { status: 500 });
+    }
+  },
+]);
+
+adminsRouter.handle<CTXCookie>("GET /user/:userId", [
+  parseCookie(),
+  authenticate(),
+  authorize({
+    roles: ["super_admin", "region_admin", "city_admin", "school_admin"],
+  }),
   async (req, { params }) => {
     const userId = params.userId;
+
     try {
-      const user = await getAdminUserDetails(userId);
-      if (!user) {
+      // Get user details
+      const userDetails = await getUserDetails(userId);
+      if (!userDetails) {
         return json({ error: "User not found" }, { status: 404 });
       }
 
-      return json({ user, success: true });
+      return json({ user: userDetails, success: true });
     } catch (error) {
       console.error("Error fetching user details:", error);
       return json({ error: "Failed to fetch user details" }, { status: 500 });
@@ -39,11 +75,47 @@ adminUsersRouter.handle<CTXCookie>("GET /user/:userId", [
   },
 ]);
 
-// Get all admin users with filtering
-adminUsersRouter.handle<CTXCookie>("GET /users", [
+// NEW: Get admins by role and target ID
+adminsRouter.handle<CTXCookie>("GET /:role/:targetId", [
   parseCookie(),
   authenticate(),
-  authorize({ roles: ["super_admin"] }),
+  authorize({
+    roles: ["super_admin", "region_admin", "city_admin", "school_admin"],
+  }),
+  async (req, { params }) => {
+    const { role, targetId } = params;
+    const validRoles = [
+      "region_admin",
+      "city_admin",
+      "school_admin",
+      "university_admin",
+    ];
+
+    if (!validRoles.includes(role)) {
+      return json({ error: "Invalid admin role" }, { status: 400 });
+    }
+
+    if (!targetId) {
+      return json({ error: "Target ID is required" }, { status: 400 });
+    }
+
+    try {
+      const admins = await getAdminsByRoleAndTarget(role as any, targetId);
+      return json({ admins, success: true });
+    } catch (error) {
+      console.error("Error fetching admins by role and target:", error);
+      return json({ error: "Failed to fetch admins" }, { status: 500 });
+    }
+  },
+]);
+
+// Get all admin users with filtering
+adminsRouter.handle<CTXCookie>("GET /users", [
+  parseCookie(),
+  authenticate(),
+  authorize({
+    roles: ["super_admin", "region_admin", "city_admin", "school_admin"],
+  }),
   async (req, ctx) => {
     try {
       const searchParams = new URL(req.url).searchParams;
@@ -67,7 +139,7 @@ adminUsersRouter.handle<CTXCookie>("GET /users", [
 ]);
 
 // Update admin user
-adminUsersRouter.handle<
+adminsRouter.handle<
   CTXCookie & {
     body: {
       firstName?: string;
@@ -79,7 +151,9 @@ adminUsersRouter.handle<
 >("PATCH /user/:userId", [
   parseCookie(),
   authenticate(),
-  authorize({ roles: ["super_admin"] }),
+  authorize({
+    roles: ["super_admin", "region_admin", "city_admin", "school_admin"],
+  }),
   parseBody({
     accept: ["application/json"],
     maxSize: 1024,
@@ -101,12 +175,14 @@ adminUsersRouter.handle<
 ]);
 
 // Assign region to admin
-adminUsersRouter.handle<CTXCookie & { body: { regionId: string } }>(
+adminsRouter.handle<CTXCookie & { body: { regionId: string } }>(
   "POST /user/:userId/regions",
   [
     parseCookie(),
     authenticate(),
-    authorize({ roles: ["super_admin"] }),
+    authorize({
+      roles: ["super_admin", "region_admin", "city_admin", "school_admin"],
+    }),
     parseBody({
       accept: ["application/json"],
       maxSize: 1024,
@@ -149,10 +225,12 @@ adminUsersRouter.handle<CTXCookie & { body: { regionId: string } }>(
 );
 
 // Remove region from admin
-adminUsersRouter.handle<CTXCookie>("DELETE /user/:userId/regions/:regionId", [
+adminsRouter.handle<CTXCookie>("DELETE /user/:userId/regions/:regionId", [
   parseCookie(),
   authenticate(),
-  authorize({ roles: ["super_admin"] }),
+  authorize({
+    roles: ["super_admin", "region_admin", "city_admin", "school_admin"],
+  }),
   async (req, { params }) => {
     const { userId, regionId } = params;
 
