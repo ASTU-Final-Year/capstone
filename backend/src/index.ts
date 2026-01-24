@@ -15,6 +15,7 @@ import { superAdminRouter } from "./routes/api/super-admin";
 import { config } from "./config";
 import { adminsRouter } from "./routes/api/admins.route";
 import { regionsRouter } from "./routes/api/regions.route";
+import { citiesRouter } from "./routes/api/cities.route";
 
 const router = new Router<CTXMain>({
   defaultHeaders: [["x-powered-by", "@bepalo/router"]],
@@ -97,6 +98,7 @@ router.append("/api/session", sessionRouter);
 router.append("/api/admins", adminsRouter);
 router.append("/api/super-admin", superAdminRouter);
 router.append("/api/regions", regionsRouter);
+router.append("/api/cities", citiesRouter);
 
 Bun.serve({
   port: config.port,

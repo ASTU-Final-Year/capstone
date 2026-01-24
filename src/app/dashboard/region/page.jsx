@@ -410,6 +410,13 @@ export default function RegionDashboard() {
                 <p className="text-sm font-medium">{region.name}</p>
                 <p className="text-xs text-green-600">● Active</p>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => loadRegionData(region.id)}
+              >
+                Refresh
+              </Button>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 Logout
               </Button>

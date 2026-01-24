@@ -606,6 +606,9 @@ export default function SuperAdminDashboard() {
                 <p className="text-sm font-medium">System Status</p>
                 <p className="text-xs text-green-600">● Online</p>
               </div>
+              <Button variant="outline" size="sm" onClick={() => loadData()}>
+                Refresh
+              </Button>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 Logout
               </Button>

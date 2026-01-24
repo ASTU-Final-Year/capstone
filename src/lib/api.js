@@ -129,6 +129,7 @@ class ApiClient {
     // Statistics
     getSystemStats: () => this.#request('/super-admin/stats'),
   };
+
   // Region Admin API Methods
   region = {
     // Get region details
@@ -156,10 +157,18 @@ class ApiClient {
       }),
 
     // Get cities in region
-    getCities: (regionId) => this.#request(`/regions/${regionId}/cities`),
+    getCities: (regionId, params) => {
+      console.log("----", params);
+      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+      return this.#request(`/regions/${regionId}/cities${queryString}`);
+    },
 
     // Get schools in region
-    getSchools: (regionId) => this.#request(`/regions/${regionId}/schools`),
+    getSchools: (regionId, params) => {
+      console.log("----", params);
+      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+      return this.#request(`/regions/${regionId}/schools${queryString}`);
+    },
 
     // Get students in region
     getStudents: (regionId, filters) =>
@@ -170,14 +179,123 @@ class ApiClient {
       this.#request(`/regions/${regionId}/placements${academicYear ? `?academicYear=${academicYear}` : ""}`),
   };
 
+  // City Admin API Methods
+  city = {
+    // Get city details
+    getCityDetails: (cityId) => this.#request(`/cities/${cityId}`),
+
+    // Get city statistics
+    getCityStats: (cityId, academicYear) => {
+      const queryString = academicYear ? `?academicYear=${academicYear}` : '';
+      return this.#request(`/cities/${cityId}/stats${queryString}`);
+    },
+
+    // Manage schools in city
+    getSchools: (cityId, params) => {
+      console.log("----", params);
+      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+      return this.#request(`/cities/${cityId}/schools${queryString}`);
+    },
+
+    createSchool: (cityId, data) =>
+      this.#request(`/cities/${cityId}/schools`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    updateSchool: (cityId, schoolId, data) =>
+      this.#request(`/cities/${cityId}/schools/${schoolId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
+
+    deleteSchool: (cityId, schoolId) =>
+      this.#request(`/cities/${cityId}/schools/${schoolId}`, {
+        method: 'DELETE',
+      }),
+
+    // Get students in city
+    getStudents: (cityId, params) => {
+      console.log("----", params);
+      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+      return this.#request(`/cities/${cityId}/students${queryString}`);
+    },
+
+    // Get student submissions in city
+    getSubmissions: (cityId, params) => {
+      console.log("----", params);
+      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+      return this.#request(`/cities/${cityId}/submissions${queryString}`);
+    },
+
+    // Get school details
+    getSchoolDetails: (cityId, schoolId) =>
+      this.#request(`/cities/${cityId}/schools/${schoolId}`),
+    getCityAdmins: () =>
+      this.#request('/super-admin/admins/city_admin'),
+
+    // Create city admin (already exists as createAdmin)
+    // createCityAdmin is just an alias for createAdmin with city_admin role
+    createCityAdmin: (data) =>
+      this.#request('/super-admin/admins', {
+        method: 'POST',
+        body: JSON.stringify({ ...data, role: 'city_admin' }),
+      }),
+
+    // Get cities for assigning admins
+    getCitiesForAdmin: () =>
+      this.#request('/super-admin/admins/targets/city_admin'),
+
+    // Delete/remove city admin
+    removeCityAdmin: (adminId, userId) =>
+      this.#request(`/super-admin/admins/${adminId}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ userId }),
+      }),
+  };
+
   // Admin methods
   admin = {
     // Get admin by user ID
     getAdminByUserId: (userId) => this.#request(`/admins/user/${userId}`),
 
+    // Get all admin users
+    getAllAdminUsers: (params) => {
+      console.log("----", params);
+      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+      return this.#request(`/admins/users${queryString}`);
+    },
+
     // Get admins by role and target
     getAdminsByRoleAndTarget: (role, targetId) =>
       this.#request(`/admins/${role}/${targetId}`),
+
+    // Get admins by role
+    getAdminsByRole: (role) =>
+      this.#request(`/admins/${role}`),
+
+    // Update admin user
+    updateAdminUser: (userId, data) =>
+      this.#request(`/admins/user/${userId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
+
+    // Assign region to admin
+    assignRegionToAdmin: (userId, regionId) =>
+      this.#request(`/admins/user/${userId}/regions`, {
+        method: 'POST',
+        body: JSON.stringify({ regionId }),
+      }),
+
+    // Remove region from admin
+    removeRegionFromAdmin: (userId, regionId) =>
+      this.#request(`/admins/user/${userId}/regions/${regionId}`, {
+        method: 'DELETE',
+      }),
+
+    // Get school admins
+    getSchoolAdmins: () => this.#request('/admins/school_admin'),
   };
 
   // Auth methods
@@ -189,6 +307,59 @@ class ApiClient {
       }),
     logout: () => this.#request('/session', { method: 'DELETE' }),
     getCurrentSession: () => this.#request('/session'),
+  };
+
+  // Utility methods for the dashboard
+  utils = {
+    // Check if user has permission to access city
+    checkCityAccess: async (userId) => {
+      try {
+        const adminDetails = await this.admin.getAdminByUserId(userId);
+        if (!adminDetails || !adminDetails.user || !adminDetails.user.admin || !adminDetails.user.admin.targetId) {
+          return null;
+        }
+        return adminDetails.user.admin.targetId;
+      } catch (error) {
+        console.error('Error checking city access:', error);
+        return null;
+      }
+    },
+
+    // Check if user has permission to access region
+    checkRegionAccess: async (userId) => {
+      try {
+        const adminDetails = await this.admin.getAdminByUserId(userId);
+        if (!adminDetails || !adminDetails.user || !adminDetails.user.admin || !adminDetails.user.admin.targetId) {
+          return null;
+        }
+        return adminDetails.user.admin.targetId;
+      } catch (error) {
+        console.error('Error checking region access:', error);
+        return null;
+      }
+    },
+
+    // Get current user's role and target
+    getCurrentUserRoleAndTarget: async () => {
+      try {
+        const session = await this.auth.getCurrentSession();
+        if (!session.success || !session.session || !session.session.user) {
+          return null;
+        }
+
+        const user = session.session.user;
+        const adminDetails = await this.admin.getAdminByUserId(user.id);
+
+        return {
+          user,
+          admin: adminDetails?.user?.admin,
+          targetId: adminDetails?.user?.admin?.targetId,
+        };
+      } catch (error) {
+        console.error('Error getting user role and target:', error);
+        return null;
+      }
+    },
   };
 }
 
