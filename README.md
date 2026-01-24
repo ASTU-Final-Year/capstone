@@ -13,9 +13,8 @@ This project is a full-stack web application built using **Next.js**, **Bun**, a
 
 - **Next.js 16** (React 19)
 - **Tailwind CSS**
-- **Radix UI**
-- **Material UI**
-- **React Hook Form + Zod**
+- **Shadcn**
+- **Zod**
 - **Recharts**
 
 ### Backend
