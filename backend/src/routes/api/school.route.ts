@@ -221,7 +221,7 @@ schoolRouter.handle<CTXCookie>("GET /submissions", [
 schoolRouter.handle<CTXCookie>("GET /analytics", [
   parseCookie(),
   authenticate(),
-  authorize({ roles: ["school_admin"] }),
+  authorize({ roles: ["city_admin", "school_admin", "student"] }),
   async (req, { user }) => {
     try {
       const schoolId = await getAdminSchool(user.id);

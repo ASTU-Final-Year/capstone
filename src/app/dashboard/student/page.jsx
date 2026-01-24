@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Progress } from "@/components/ui/progress"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import {
   GraduationCap,
   Bell,
@@ -39,11 +45,11 @@ import {
   Check,
   X,
   Trophy,
-  Target
-} from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+  Target,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -52,14 +58,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -67,16 +73,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-} from '@hello-pangea/dnd';
-import NotificationDropdown from "@/components/notifications/NotificationDropdown"
+} from "@/components/ui/table";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 
 export default function StudentDashboard() {
-  const router = useRouter()
+  const router = useRouter();
   const [student, setStudent] = useState({
     id: "stu_001",
     fullname: "John Doe",
@@ -91,57 +93,285 @@ export default function StudentDashboard() {
     region: "Addis Ababa",
     status: "active",
     phone: "0912345678",
-    placementStatus: "pending"
-  })
+    placementStatus: "pending",
+  });
 
-  const [submission, setSubmission] = useState(null)
-  const [placement, setPlacement] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [submission, setSubmission] = useState(null);
+  const [placement, setPlacement] = useState(null);
+  const [loading, setLoading] = useState(true);
   // const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterField, setFilterField] = useState("all")
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [originalOrder, setOriginalOrder] = useState([])
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterField, setFilterField] = useState("all");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalOrder, setOriginalOrder] = useState([]);
 
   // Complete list of Ethiopian universities
   const allEthiopianUniversities = [
-    { id: "uni_001", name: "Addis Ababa University", abbreviation: "AAU", location: "Addis Ababa", type: "Public", established: 1950, students: "45,000+", programs: ["Medicine", "Engineering", "Law", "Business", "Science", "Arts"] },
-    { id: "uni_002", name: "Bahir Dar University", abbreviation: "BDU", location: "Bahir Dar", type: "Public", established: 1963, students: "35,000+", programs: ["Engineering", "Agriculture", "Education", "Health Sciences", "Business"] },
-    { id: "uni_003", name: "Jimma University", abbreviation: "JU", location: "Jimma", type: "Public", established: 1999, students: "32,000+", programs: ["Medicine", "Agriculture", "Social Sciences", "Technology", "Health"] },
-    { id: "uni_004", name: "Hawassa University", abbreviation: "HU", location: "Hawassa", type: "Public", established: 2000, students: "30,000+", programs: ["Medicine", "Agriculture", "Business", "Education", "Technology"] },
-    { id: "uni_005", name: "Mekelle University", abbreviation: "MU", location: "Mekelle", type: "Public", established: 1993, students: "28,000+", programs: ["Engineering", "Health Sciences", "Business", "Law", "Agriculture"] },
-    { id: "uni_006", name: "University of Gondar", abbreviation: "UoG", location: "Gondar", type: "Public", established: 1954, students: "25,000+", programs: ["Medicine", "Health Sciences", "Business", "Social Sciences", "Education"] },
-    { id: "uni_007", name: "Arba Minch University", abbreviation: "AMU", location: "Arba Minch", type: "Public", established: 1986, students: "22,000+", programs: ["Technology", "Water Resources", "Tourism", "Agriculture", "Business"] },
-    { id: "uni_008", name: "Debre Markos University", abbreviation: "DMU", location: "Debre Markos", type: "Public", established: 2007, students: "20,000+", programs: ["Education", "Health", "Business", "Technology", "Agriculture"] },
-    { id: "uni_009", name: "Wollega University", abbreviation: "WU", location: "Nekemte", type: "Public", established: 2007, students: "18,000+", programs: ["Agriculture", "Education", "Health", "Technology", "Business"] },
-    { id: "uni_010", name: "Adama Science and Technology University", abbreviation: "ASTU", location: "Adama", type: "Public", established: 1993, students: "15,000+", programs: ["Technology", "Engineering", "Computing", "Business", "Science"] },
-    { id: "uni_011", name: "Dilla University", abbreviation: "DU", location: "Dilla", type: "Public", established: 1996, students: "16,000+", programs: ["Agriculture", "Education", "Health", "Business", "Technology"] },
-    { id: "uni_012", name: "Mizan-Tepi University", abbreviation: "MTU", location: "Mizan Teferi", type: "Public", established: 2007, students: "12,000+", programs: ["Agriculture", "Health", "Business", "Education", "Technology"] },
-    { id: "uni_013", name: "Woldia University", abbreviation: "WDU", location: "Woldia", type: "Public", established: 2011, students: "10,000+", programs: ["Education", "Health", "Business", "Technology", "Agriculture"] },
-    { id: "uni_014", name: "Assosa University", abbreviation: "ASU", location: "Assosa", type: "Public", established: 2011, students: "8,000+", programs: ["Education", "Health", "Business", "Agriculture", "Social Sciences"] },
-    { id: "uni_015", name: "Dire Dawa University", abbreviation: "DDU", location: "Dire Dawa", type: "Public", established: 2006, students: "9,000+", programs: ["Technology", "Business", "Health", "Education", "Social Sciences"] },
-  ]
+    {
+      id: "uni_001",
+      name: "Addis Ababa University",
+      abbreviation: "AAU",
+      location: "Addis Ababa",
+      type: "Public",
+      established: 1950,
+      students: "45,000+",
+      programs: [
+        "Medicine",
+        "Engineering",
+        "Law",
+        "Business",
+        "Science",
+        "Arts",
+      ],
+    },
+    {
+      id: "uni_002",
+      name: "Bahir Dar University",
+      abbreviation: "BDU",
+      location: "Bahir Dar",
+      type: "Public",
+      established: 1963,
+      students: "35,000+",
+      programs: [
+        "Engineering",
+        "Agriculture",
+        "Education",
+        "Health Sciences",
+        "Business",
+      ],
+    },
+    {
+      id: "uni_003",
+      name: "Jimma University",
+      abbreviation: "JU",
+      location: "Jimma",
+      type: "Public",
+      established: 1999,
+      students: "32,000+",
+      programs: [
+        "Medicine",
+        "Agriculture",
+        "Social Sciences",
+        "Technology",
+        "Health",
+      ],
+    },
+    {
+      id: "uni_004",
+      name: "Hawassa University",
+      abbreviation: "HU",
+      location: "Hawassa",
+      type: "Public",
+      established: 2000,
+      students: "30,000+",
+      programs: [
+        "Medicine",
+        "Agriculture",
+        "Business",
+        "Education",
+        "Technology",
+      ],
+    },
+    {
+      id: "uni_005",
+      name: "Mekelle University",
+      abbreviation: "MU",
+      location: "Mekelle",
+      type: "Public",
+      established: 1993,
+      students: "28,000+",
+      programs: [
+        "Engineering",
+        "Health Sciences",
+        "Business",
+        "Law",
+        "Agriculture",
+      ],
+    },
+    {
+      id: "uni_006",
+      name: "University of Gondar",
+      abbreviation: "UoG",
+      location: "Gondar",
+      type: "Public",
+      established: 1954,
+      students: "25,000+",
+      programs: [
+        "Medicine",
+        "Health Sciences",
+        "Business",
+        "Social Sciences",
+        "Education",
+      ],
+    },
+    {
+      id: "uni_007",
+      name: "Arba Minch University",
+      abbreviation: "AMU",
+      location: "Arba Minch",
+      type: "Public",
+      established: 1986,
+      students: "22,000+",
+      programs: [
+        "Technology",
+        "Water Resources",
+        "Tourism",
+        "Agriculture",
+        "Business",
+      ],
+    },
+    {
+      id: "uni_008",
+      name: "Debre Markos University",
+      abbreviation: "DMU",
+      location: "Debre Markos",
+      type: "Public",
+      established: 2007,
+      students: "20,000+",
+      programs: [
+        "Education",
+        "Health",
+        "Business",
+        "Technology",
+        "Agriculture",
+      ],
+    },
+    {
+      id: "uni_009",
+      name: "Wollega University",
+      abbreviation: "WU",
+      location: "Nekemte",
+      type: "Public",
+      established: 2007,
+      students: "18,000+",
+      programs: [
+        "Agriculture",
+        "Education",
+        "Health",
+        "Technology",
+        "Business",
+      ],
+    },
+    {
+      id: "uni_010",
+      name: "Adama Science and Technology University",
+      abbreviation: "ASTU",
+      location: "Adama",
+      type: "Public",
+      established: 1993,
+      students: "15,000+",
+      programs: [
+        "Technology",
+        "Engineering",
+        "Computing",
+        "Business",
+        "Science",
+      ],
+    },
+    {
+      id: "uni_011",
+      name: "Dilla University",
+      abbreviation: "DU",
+      location: "Dilla",
+      type: "Public",
+      established: 1996,
+      students: "16,000+",
+      programs: [
+        "Agriculture",
+        "Education",
+        "Health",
+        "Business",
+        "Technology",
+      ],
+    },
+    {
+      id: "uni_012",
+      name: "Mizan-Tepi University",
+      abbreviation: "MTU",
+      location: "Mizan Teferi",
+      type: "Public",
+      established: 2007,
+      students: "12,000+",
+      programs: [
+        "Agriculture",
+        "Health",
+        "Business",
+        "Education",
+        "Technology",
+      ],
+    },
+    {
+      id: "uni_013",
+      name: "Woldia University",
+      abbreviation: "WDU",
+      location: "Woldia",
+      type: "Public",
+      established: 2011,
+      students: "10,000+",
+      programs: [
+        "Education",
+        "Health",
+        "Business",
+        "Technology",
+        "Agriculture",
+      ],
+    },
+    {
+      id: "uni_014",
+      name: "Assosa University",
+      abbreviation: "ASU",
+      location: "Assosa",
+      type: "Public",
+      established: 2011,
+      students: "8,000+",
+      programs: [
+        "Education",
+        "Health",
+        "Business",
+        "Agriculture",
+        "Social Sciences",
+      ],
+    },
+    {
+      id: "uni_015",
+      name: "Dire Dawa University",
+      abbreviation: "DDU",
+      location: "Dire Dawa",
+      type: "Public",
+      established: 2006,
+      students: "9,000+",
+      programs: [
+        "Technology",
+        "Business",
+        "Health",
+        "Education",
+        "Social Sciences",
+      ],
+    },
+  ];
 
   // Initialize with all universities in alphabetical order
   const [universityPreferences, setUniversityPreferences] = useState(
     allEthiopianUniversities.map((uni, index) => ({
       ...uni,
       rank: index + 1,
-      isFavorite: index < 3 // First 3 as favorites by default
-    }))
-  )
+      isFavorite: index < 3, // First 3 as favorites by default
+    })),
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       // Mock API calls - load saved preferences if they exist
       setTimeout(() => {
         // Check if there are saved preferences in localStorage
-        const savedPreferences = localStorage.getItem(`student_${student.id}_preferences`)
+        const savedPreferences = localStorage.getItem(
+          `student_${student.id}_preferences`,
+        );
 
         if (savedPreferences) {
-          const parsedPreferences = JSON.parse(savedPreferences)
-          setUniversityPreferences(parsedPreferences)
-          setOriginalOrder([...parsedPreferences])
+          const parsedPreferences = JSON.parse(savedPreferences);
+          setUniversityPreferences(parsedPreferences);
+          setOriginalOrder([...parsedPreferences]);
         } else {
           // Default alphabetical order
           const defaultOrder = [...allEthiopianUniversities]
@@ -149,11 +379,11 @@ export default function StudentDashboard() {
             .map((uni, index) => ({
               ...uni,
               rank: index + 1,
-              isFavorite: index < 3
-            }))
+              isFavorite: index < 3,
+            }));
 
-          setUniversityPreferences(defaultOrder)
-          setOriginalOrder([...defaultOrder])
+          setUniversityPreferences(defaultOrder);
+          setOriginalOrder([...defaultOrder]);
         }
 
         setSubmission({
@@ -162,8 +392,8 @@ export default function StudentDashboard() {
           academicYear: "2024",
           status: "draft",
           submittedAt: null,
-          updatedAt: new Date().toISOString()
-        })
+          updatedAt: new Date().toISOString(),
+        });
 
         setPlacement({
           id: "place_001",
@@ -174,19 +404,19 @@ export default function StudentDashboard() {
           status: "pending",
           placementDate: "2024-06-15",
           submittedAt: null,
-          createdAt: "2024-01-20T09:15:00Z"
-        })
+          createdAt: "2024-01-20T09:15:00Z",
+        });
 
-        setLoading(false)
-      }, 1000)
-    }
-    fetchData()
-  }, [])
+        setLoading(false);
+      }, 1000);
+    };
+    fetchData();
+  }, []);
 
   const handleLogout = () => {
     // Clear session and redirect
-    router.push("/login")
-  }
+    router.push("/login");
+  };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -198,7 +428,7 @@ export default function StudentDashboard() {
     // Update ranks based on new order
     const updatedItems = items.map((item, index) => ({
       ...item,
-      rank: index + 1
+      rank: index + 1,
     }));
 
     setUniversityPreferences(updatedItems);
@@ -213,7 +443,7 @@ export default function StudentDashboard() {
 
     const updatedItems = items.map((item, idx) => ({
       ...item,
-      rank: idx + 1
+      rank: idx + 1,
     }));
 
     setUniversityPreferences(updatedItems);
@@ -228,7 +458,7 @@ export default function StudentDashboard() {
 
     const updatedItems = items.map((item, idx) => ({
       ...item,
-      rank: idx + 1
+      rank: idx + 1,
     }));
 
     setUniversityPreferences(updatedItems);
@@ -242,7 +472,7 @@ export default function StudentDashboard() {
 
     const updatedItems = items.map((item, idx) => ({
       ...item,
-      rank: idx + 1
+      rank: idx + 1,
     }));
 
     setUniversityPreferences(updatedItems);
@@ -256,7 +486,7 @@ export default function StudentDashboard() {
 
     const updatedItems = items.map((item, idx) => ({
       ...item,
-      rank: idx + 1
+      rank: idx + 1,
     }));
 
     setUniversityPreferences(updatedItems);
@@ -264,8 +494,8 @@ export default function StudentDashboard() {
   };
 
   const handleToggleFavorite = (id) => {
-    const updatedPreferences = universityPreferences.map(uni =>
-      uni.id === id ? { ...uni, isFavorite: !uni.isFavorite } : uni
+    const updatedPreferences = universityPreferences.map((uni) =>
+      uni.id === id ? { ...uni, isFavorite: !uni.isFavorite } : uni,
     );
 
     setUniversityPreferences(updatedPreferences);
@@ -274,7 +504,10 @@ export default function StudentDashboard() {
 
   const handleSavePreferences = () => {
     // Save to localStorage
-    localStorage.setItem(`student_${student.id}_preferences`, JSON.stringify(universityPreferences));
+    localStorage.setItem(
+      `student_${student.id}_preferences`,
+      JSON.stringify(universityPreferences),
+    );
 
     // Save original order for reset
     setOriginalOrder([...universityPreferences]);
@@ -289,7 +522,7 @@ export default function StudentDashboard() {
       .map((uni, index) => ({
         ...uni,
         rank: index + 1,
-        isFavorite: index < 3
+        isFavorite: index < 3,
       }));
 
     setUniversityPreferences(defaultOrder);
@@ -308,7 +541,7 @@ export default function StudentDashboard() {
       status: "submitted",
       universityPreferences: universityPreferences,
       submittedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     setSubmission(submissionData);
@@ -321,33 +554,57 @@ export default function StudentDashboard() {
 
   const handleVerifyData = () => {
     // API call to verify student data
-    setStudent(prev => ({ ...prev, verificationStatus: "verified" }));
+    setStudent((prev) => ({ ...prev, verificationStatus: "verified" }));
     alert("Your data has been verified!");
   };
 
   // Filtered universities based on search
-  const filteredUniversities = universityPreferences.filter(uni =>
-    uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    uni.abbreviation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    uni.location.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUniversities = universityPreferences.filter(
+    (uni) =>
+      uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      uni.abbreviation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      uni.location.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const stats = [
-    { label: "GPA", value: student.gpa, icon: Award, color: "text-green-500" },
-    { label: "Verification Status", value: student.verificationStatus === "verified" ? "Verified" : "Pending", icon: CheckCircle, color: student.verificationStatus === "verified" ? "text-green-500" : "text-amber-500" },
-    { label: "Total Universities", value: universityPreferences.length, icon: SchoolIcon, color: "text-blue-500" },
-    { label: "Submission Status", value: submission?.status === "submitted" ? "Submitted" : "Draft", icon: FileText, color: submission?.status === "submitted" ? "text-green-500" : "text-amber-500" }
-  ]
+    // { label: "GPA", value: student.gpa, icon: Award, color: "text-green-500" },
+    {
+      label: "Verification Status",
+      value: student.verificationStatus === "verified" ? "Verified" : "Pending",
+      icon: CheckCircle,
+      color:
+        student.verificationStatus === "verified"
+          ? "text-green-500"
+          : "text-amber-500",
+    },
+    {
+      label: "Total Universities",
+      value: universityPreferences.length,
+      icon: SchoolIcon,
+      color: "text-blue-500",
+    },
+    {
+      label: "Submission Status",
+      value: submission?.status === "submitted" ? "Submitted" : "Draft",
+      icon: FileText,
+      color:
+        submission?.status === "submitted"
+          ? "text-green-500"
+          : "text-amber-500",
+    },
+  ];
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading your dashboard...</p>
+          <p className="mt-4 text-muted-foreground">
+            Loading your dashboard...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -360,7 +617,9 @@ export default function StudentDashboard() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold text-foreground">EAES Student Portal</span>
+              <span className="text-xl font-bold text-foreground">
+                EAES Student Portal
+              </span>
               <Badge variant="outline">Student</Badge>
             </div>
 
@@ -368,12 +627,16 @@ export default function StudentDashboard() {
               <NotificationDropdown />
               <div className="flex items-center gap-3">
                 <Avatar>
-                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.fullname}`} />
+                  <AvatarImage
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.fullname}`}
+                  />
                   <AvatarFallback>{student.fullname.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block">
                   <p className="text-sm font-medium">{student.fullname}</p>
-                  <p className="text-xs text-muted-foreground">{student.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {student.email}
+                  </p>
                 </div>
               </div>
               <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -388,9 +651,12 @@ export default function StudentDashboard() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Welcome, {student.fullname}!</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Welcome, {student.fullname}!
+          </h1>
           <p className="text-muted-foreground mt-2">
-            This is your EAES portal. Sort ALL Ethiopian universities according to your preference for placement.
+            This is your EAES portal. Sort ALL Ethiopian universities according
+            to your preference for placement.
           </p>
           <div className="flex flex-wrap gap-4 mt-4 text-muted-foreground">
             <div className="flex items-center gap-1">
@@ -403,24 +669,32 @@ export default function StudentDashboard() {
             </div>
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
-              <span>{student.city}, {student.region}</span>
+              <span>
+                {student.city}, {student.region}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
           {stats.map((stat, idx) => (
             <Card key={idx}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className={`text-2xl font-bold mt-1 ${stat.color || "text-foreground"}`}>
+                    <p className="text-sm text-muted-foreground">
+                      {stat.label}
+                    </p>
+                    <p
+                      className={`text-2xl font-bold mt-1 ${stat.color || "text-foreground"}`}
+                    >
                       {stat.value}
                     </p>
                   </div>
-                  <div className={`p-3 rounded-full ${stat.color.replace("text-", "bg-")}/10`}>
+                  <div
+                    className={`p-3 rounded-full ${stat.color.replace("text-", "bg-")}/10`}
+                  >
                     <stat.icon className={`w-6 h-6 ${stat.color}`} />
                   </div>
                 </div>
@@ -436,11 +710,13 @@ export default function StudentDashboard() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-yellow-800">Action Required: Verify Your Data In Your Profile Section</h3>
+                  <h3 className="font-semibold text-yellow-800">
+                    Action Required: Verify Your Data In Your Profile Section
+                  </h3>
                   <p className="text-yellow-700 text-sm mt-1">
-                    Please verify your personal and academic information before submitting university preferences.
+                    Please verify your personal and academic information before
+                    submitting university preferences.
                   </p>
-
                 </div>
               </div>
             </CardContent>
@@ -452,15 +728,12 @@ export default function StudentDashboard() {
           <div>
             <h3 className="font-semibold">University Preference Ranking</h3>
             <p className="text-sm text-muted-foreground">
-              Sort all {universityPreferences.length} Ethiopian universities by dragging or using arrows
+              Sort all {universityPreferences.length} Ethiopian universities by
+              dragging or using arrows
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button
-              variant="outline"
-              onClick={handleResetToDefault}
-              size="sm"
-            >
+            <Button variant="outline" onClick={handleResetToDefault} size="sm">
               <RotateCcw className="w-4 h-4 mr-2" />
               Reset to Default
             </Button>
@@ -522,7 +795,10 @@ export default function StudentDashboard() {
 
                 <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <Target className="w-4 h-4" />
-                  <span>Your top 3 choices will be marked as favorites and receive priority consideration</span>
+                  <span>
+                    Your top 3 choices will be marked as favorites and receive
+                    priority consideration
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -532,15 +808,20 @@ export default function StudentDashboard() {
               <CardHeader>
                 <CardTitle>University Preference Ranking</CardTitle>
                 <CardDescription>
-                  Drag to reorder or use the arrow buttons. Rank 1 is your highest preference.
+                  Drag to reorder or use the arrow buttons. Rank 1 is your
+                  highest preference.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {filteredUniversities.length === 0 ? (
                   <div className="text-center py-12">
                     <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No universities found</h3>
-                    <p className="text-muted-foreground">Try a different search term</p>
+                    <h3 className="text-lg font-medium mb-2">
+                      No universities found
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Try a different search term
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -553,12 +834,16 @@ export default function StudentDashboard() {
                             className="space-y-2"
                           >
                             {filteredUniversities.map((uni, index) => (
-                              <Draggable key={uni.id} draggableId={uni.id} index={index}>
+                              <Draggable
+                                key={uni.id}
+                                draggableId={uni.id}
+                                index={index}
+                              >
                                 {(provided) => (
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
-                                    className={`flex items-center gap-3 p-4 border rounded-lg bg-card hover:bg-accent transition-colors ${uni.isFavorite ? 'border-yellow-200 bg-yellow-50' : ''}`}
+                                    className={`flex items-center gap-3 p-4 border rounded-lg bg-card hover:border-accent transition-colors ${uni.isFavorite ? "bg-gray-100" : ""}`}
                                   >
                                     <div
                                       {...provided.dragHandleProps}
@@ -569,23 +854,34 @@ export default function StudentDashboard() {
 
                                     <div className="flex items-center justify-between flex-1">
                                       <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${uni.rank <= 3 ? 'bg-yellow-100 border-2 border-yellow-400' : 'bg-primary/10'}`}>
-                                          <span className={`font-bold ${uni.rank <= 3 ? 'text-yellow-700' : 'text-primary'}`}>
+                                        <div
+                                          className={`w-10 h-10 rounded-full flex items-center justify-center ${uni.rank <= 3 ? "bg-yellow-100 border-2 border-yellow-400" : "bg-primary/10"}`}
+                                        >
+                                          <span
+                                            className={`font-bold ${uni.rank <= 3 ? "text-yellow-700" : "text-primary"}`}
+                                          >
                                             {uni.rank}
                                           </span>
                                         </div>
                                         <div>
                                           <div className="flex items-center gap-2">
-                                            <h4 className="font-semibold">{uni.name}</h4>
+                                            <h4 className="font-semibold">
+                                              {uni.name}
+                                            </h4>
                                             {uni.isFavorite && (
-                                              <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                                              <Badge
+                                                variant="outline"
+                                                className="bg-yellow-100 text-yellow-800 border-yellow-300"
+                                              >
                                                 <Trophy className="w-3 h-3 mr-1" />
                                                 Top Choice
                                               </Badge>
                                             )}
                                           </div>
                                           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                                            <Badge variant="secondary">{uni.abbreviation}</Badge>
+                                            <Badge variant="secondary">
+                                              {uni.abbreviation}
+                                            </Badge>
                                             <span>{uni.location}</span>
                                             <span>•</span>
                                             <span>{uni.type}</span>
@@ -593,11 +889,17 @@ export default function StudentDashboard() {
                                             <span>Est. {uni.established}</span>
                                           </div>
                                           <div className="flex flex-wrap gap-1 mt-1">
-                                            {uni.programs.slice(0, 2).map((program, idx) => (
-                                              <Badge key={idx} variant="outline" className="text-xs">
-                                                {program}
-                                              </Badge>
-                                            ))}
+                                            {uni.programs
+                                              .slice(0, 2)
+                                              .map((program, idx) => (
+                                                <Badge
+                                                  key={idx}
+                                                  variant="outline"
+                                                  className="text-xs"
+                                                >
+                                                  {program}
+                                                </Badge>
+                                              ))}
                                             {uni.programs.length > 2 && (
                                               <span className="text-xs text-muted-foreground">
                                                 +{uni.programs.length - 2} more
@@ -613,11 +915,15 @@ export default function StudentDashboard() {
                                             variant="ghost"
                                             size="icon"
                                             className="h-7 w-7"
-                                            onClick={() => handleMoveToTop(index)}
+                                            onClick={() =>
+                                              handleMoveToTop(index)
+                                            }
                                             title="Move to top"
                                           >
                                             <ChevronUp className="h-3 w-3" />
-                                            <span className="sr-only text-xs">Top</span>
+                                            <span className="sr-only text-xs">
+                                              Top
+                                            </span>
                                           </Button>
                                           <Button
                                             variant="ghost"
@@ -633,8 +939,13 @@ export default function StudentDashboard() {
                                             variant="ghost"
                                             size="icon"
                                             className="h-7 w-7"
-                                            onClick={() => handleMoveDown(index)}
-                                            disabled={index === filteredUniversities.length - 1}
+                                            onClick={() =>
+                                              handleMoveDown(index)
+                                            }
+                                            disabled={
+                                              index ===
+                                              filteredUniversities.length - 1
+                                            }
                                             title="Move down"
                                           >
                                             <ChevronDown className="h-3 w-3" />
@@ -643,20 +954,34 @@ export default function StudentDashboard() {
                                             variant="ghost"
                                             size="icon"
                                             className="h-7 w-7"
-                                            onClick={() => handleMoveToBottom(index)}
+                                            onClick={() =>
+                                              handleMoveToBottom(index)
+                                            }
                                             title="Move to bottom"
                                           >
                                             <ChevronDown className="h-3 w-3" />
-                                            <span className="sr-only text-xs">Bottom</span>
+                                            <span className="sr-only text-xs">
+                                              Bottom
+                                            </span>
                                           </Button>
                                         </div>
 
                                         <Button
                                           variant="ghost"
                                           size="icon"
-                                          onClick={() => handleToggleFavorite(uni.id)}
-                                          className={uni.isFavorite ? "text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50" : "text-gray-400 hover:text-gray-600"}
-                                          title={uni.isFavorite ? "Remove from favorites" : "Mark as favorite"}
+                                          onClick={() =>
+                                            handleToggleFavorite(uni.id)
+                                          }
+                                          className={
+                                            uni.isFavorite
+                                              ? "text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
+                                              : "text-gray-400 hover:text-gray-600"
+                                          }
+                                          title={
+                                            uni.isFavorite
+                                              ? "Remove from favorites"
+                                              : "Mark as favorite"
+                                          }
                                         >
                                           {uni.isFavorite ? (
                                             <Check className="h-5 w-5" />
@@ -681,14 +1006,32 @@ export default function StudentDashboard() {
                       <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
                         <div>
-                          <h4 className="font-semibold text-blue-800">How University Ranking Works</h4>
+                          <h4 className="font-semibold text-blue-800">
+                            How University Ranking Works
+                          </h4>
                           <ul className="text-sm text-blue-700 space-y-1 mt-2">
-                            <li>• <strong>Rank 1-3</strong> (Yellow): Your top priority choices - EAES will try to place you here first</li>
-                            <li>• <strong>Rank 4-10</strong>: High preference choices</li>
-                            <li>• <strong>Rank 11-15</strong>: Lower preference choices</li>
+                            <li>
+                              • <strong>Rank 1-3</strong> (Yellow): Your top
+                              priority choices - EAES will try to place you here
+                              first
+                            </li>
+                            <li>
+                              • <strong>Rank 4-10</strong>: High preference
+                              choices
+                            </li>
+                            <li>
+                              • <strong>Rank 11-15</strong>: Lower preference
+                              choices
+                            </li>
                             <li>• You must rank ALL available universities</li>
-                            <li>• EAES will use this ranking to determine your placement</li>
-                            <li>• All placements are released simultaneously on June 15, 2024</li>
+                            <li>
+                              • EAES will use this ranking to determine your
+                              placement
+                            </li>
+                            <li>
+                              • All placements are released simultaneously on
+                              June 15, 2024
+                            </li>
                           </ul>
                         </div>
                       </div>
@@ -705,10 +1048,13 @@ export default function StudentDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Student Profile</CardTitle>
-                    <CardDescription>Your personal information and academic details</CardDescription>
+                    <CardDescription>
+                      Your personal information and academic details
+                    </CardDescription>
                   </div>
                   {student.verificationStatus !== "verified" && (
-                    <Button size="sm"
+                    <Button
+                      size="sm"
                       className="mt-3 bg-yellow-600 hover:bg-yellow-700"
                       onClick={handleVerifyData}
                     >
@@ -734,7 +1080,10 @@ export default function StudentDashboard() {
                     </div>
                     <div>
                       <Label>Birth Date</Label>
-                      <Input value={new Date(student.birthDate).toLocaleDateString()} readOnly />
+                      <Input
+                        value={new Date(student.birthDate).toLocaleDateString()}
+                        readOnly
+                      />
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -762,18 +1111,36 @@ export default function StudentDashboard() {
                 <Separator className="my-6" />
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">EAES Application Status</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    EAES Application Status
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span>Data Verification</span>
-                      <Badge variant={student.verificationStatus === "verified" ? "default" : "destructive"}>
-                        {student.verificationStatus === "verified" ? "✓ Verified" : "✗ Pending"}
+                      <Badge
+                        variant={
+                          student.verificationStatus === "verified"
+                            ? "default"
+                            : "destructive"
+                        }
+                      >
+                        {student.verificationStatus === "verified"
+                          ? "✓ Verified"
+                          : "✗ Pending"}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>University Preferences</span>
-                      <Badge variant={submission?.status === "submitted" ? "default" : "outline"}>
-                        {submission?.status === "submitted" ? "✓ Submitted" : "Draft"}
+                      <Badge
+                        variant={
+                          submission?.status === "submitted"
+                            ? "default"
+                            : "outline"
+                        }
+                      >
+                        {submission?.status === "submitted"
+                          ? "✓ Submitted"
+                          : "Draft"}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
@@ -792,7 +1159,9 @@ export default function StudentDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Placement Status</CardTitle>
-                <CardDescription>Your university placement information</CardDescription>
+                <CardDescription>
+                  Your university placement information
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {submission?.status === "submitted" ? (
@@ -810,14 +1179,30 @@ export default function StudentDashboard() {
                                 Submitted
                               </Badge>
                             </div>
-                            <h3 className="font-bold text-xl mb-1">Preferences Submitted Successfully!</h3>
+                            <h3 className="font-bold text-xl mb-1">
+                              Preferences Submitted Successfully!
+                            </h3>
                             <p className="text-muted-foreground mb-2">
-                              Your university preferences have been submitted to EAES for processing.
+                              Your university preferences have been submitted to
+                              EAES for processing.
                             </p>
                             <div className="space-y-1 text-sm">
-                              <p><strong>Submission Date:</strong> {new Date(submission.submittedAt).toLocaleDateString()}</p>
-                              <p><strong>Number of Universities Ranked:</strong> {universityPreferences.length}</p>
-                              <p><strong>Placement Release Date:</strong> {new Date(placement.placementDate).toLocaleDateString()}</p>
+                              <p>
+                                <strong>Submission Date:</strong>{" "}
+                                {new Date(
+                                  submission.submittedAt,
+                                ).toLocaleDateString()}
+                              </p>
+                              <p>
+                                <strong>Number of Universities Ranked:</strong>{" "}
+                                {universityPreferences.length}
+                              </p>
+                              <p>
+                                <strong>Placement Release Date:</strong>{" "}
+                                {new Date(
+                                  placement.placementDate,
+                                ).toLocaleDateString()}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -828,22 +1213,30 @@ export default function StudentDashboard() {
                     <Card>
                       <CardHeader>
                         <CardTitle>Your Top 3 University Choices</CardTitle>
-                        <CardDescription>These will receive priority consideration</CardDescription>
+                        <CardDescription>
+                          These will receive priority consideration
+                        </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="grid md:grid-cols-3 gap-4">
                           {universityPreferences
-                            .filter(uni => uni.isFavorite)
+                            .filter((uni) => uni.isFavorite)
                             .sort((a, b) => a.rank - b.rank)
                             .slice(0, 3)
                             .map((uni) => (
                               <Card key={uni.id} className="border-yellow-200">
                                 <CardContent className="p-4">
                                   <div className="flex items-center justify-center w-10 h-10 bg-yellow-100 rounded-full mb-3 mx-auto">
-                                    <span className="font-bold text-yellow-700">{uni.rank}</span>
+                                    <span className="font-bold text-yellow-700">
+                                      {uni.rank}
+                                    </span>
                                   </div>
-                                  <h4 className="font-semibold text-center">{uni.name}</h4>
-                                  <p className="text-sm text-muted-foreground text-center">{uni.location}</p>
+                                  <h4 className="font-semibold text-center">
+                                    {uni.name}
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground text-center">
+                                    {uni.location}
+                                  </p>
                                   <Badge className="mt-2 w-full justify-center bg-yellow-100 text-yellow-800 border-yellow-300">
                                     <Trophy className="w-3 h-3 mr-1" />
                                     Priority Choice
@@ -859,11 +1252,15 @@ export default function StudentDashboard() {
                       <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
                         <div>
-                          <h4 className="font-semibold text-blue-800">Important EAES Information</h4>
+                          <h4 className="font-semibold text-blue-800">
+                            Important EAES Information
+                          </h4>
                           <p className="text-blue-700 text-sm mt-1">
-                            All student placements are released simultaneously on June 15, 2024.
-                            EAES will process your university preferences along with your academic performance
-                            to determine your placement. You will receive notification when results are available.
+                            All student placements are released simultaneously
+                            on June 15, 2024. EAES will process your university
+                            preferences along with your academic performance to
+                            determine your placement. You will receive
+                            notification when results are available.
                           </p>
                         </div>
                       </div>
@@ -872,20 +1269,27 @@ export default function StudentDashboard() {
                 ) : (
                   <div className="text-center py-12">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">Preferences Not Submitted</h3>
+                    <h3 className="text-lg font-medium mb-2">
+                      Preferences Not Submitted
+                    </h3>
                     <p className="text-muted-foreground mb-6">
-                      You need to submit your university preferences to EAES before you can receive placement.
-                      Go to the "Rank Universities" tab to complete your preferences.
+                      You need to submit your university preferences to EAES
+                      before you can receive placement. Go to the "Rank
+                      Universities" tab to complete your preferences.
                     </p>
-                    <Button onClick={() => {
-                      const rankingTab = document.querySelector('button[role="tab"][value="ranking"]');
-                      if (rankingTab) {
-                        rankingTab.click();
-                      } else {
-                        // Fallback or error handling
-                        console.error("Ranking tab not found");
-                      }
-                    }}>
+                    <Button
+                      onClick={() => {
+                        const rankingTab = document.querySelector(
+                          'button[role="tab"][value="ranking"]',
+                        );
+                        if (rankingTab) {
+                          rankingTab.click();
+                        } else {
+                          // Fallback or error handling
+                          console.error("Ranking tab not found");
+                        }
+                      }}
+                    >
                       Go to University Ranking
                     </Button>
                   </div>
@@ -931,5 +1335,5 @@ export default function StudentDashboard() {
         </DialogContent>
       </Dialog> */}
     </div>
-  )
+  );
 }

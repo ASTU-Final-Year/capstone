@@ -298,6 +298,96 @@ class ApiClient {
     getSchoolAdmins: () => this.#request('/admins/school_admin'),
   };
 
+  student = {
+    getProfile: async () => {
+      const response = await fetch('/api/student/profile', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch student profile');
+      return response.json();
+    },
+
+    getAvailableUniversities: async () => {
+      const response = await fetch('/api/student/universities', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch universities');
+      return response.json();
+    },
+
+    getPlacementStatus: async () => {
+      const response = await fetch('/api/student/placement-status', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch placement status');
+      return response.json();
+    },
+
+    savePreferences: async (preferences) => {
+      const response = await fetch('/api/student/preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ preferences }),
+      });
+      if (!response.ok) throw new Error('Failed to save preferences');
+      return response.json();
+    },
+
+    submitPreferences: async (academicYear = "2024") => {
+      const response = await fetch('/api/student/submit-preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ academicYear }),
+      });
+      if (!response.ok) throw new Error('Failed to submit preferences');
+      return response.json();
+    },
+
+    updateProfile: async (updates) => {
+      const response = await fetch('/api/student/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) throw new Error('Failed to update profile');
+      return response.json();
+    },
+
+    verifyData: async () => {
+      const response = await fetch('/api/student/verify', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to verify data');
+      return response.json();
+    },
+
+    getDashboard: async () => {
+      const response = await fetch('/api/student/dashboard', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch dashboard');
+      return response.json();
+    },
+
+    getSubmissions: async () => {
+      const response = await fetch('/api/student/submissions', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch submissions');
+      return response.json();
+    },
+  }
+
   // Auth methods
   auth = {
     login: (email, password) =>
