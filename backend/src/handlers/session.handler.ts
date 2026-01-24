@@ -23,7 +23,8 @@ export const createSession =
     if (!user) {
       return json({ error: "Invalid login" }, { status: 401 });
     }
-    const sessionId = await servCreateSession(user.id);
+    const expires = Time.after(24).hours.fromNow()._ms;
+    const sessionId = await servCreateSession(user.id, expires);
     return json(
       { sessionId, user, success: true },
       {
@@ -33,7 +34,7 @@ export const createSession =
             path: "/",
             httpOnly: true,
             secure: config.isProduction,
-            expires: Time.after(24).hours.fromNow()._ms,
+            expires: expires,
             sameSite: "Strict",
           }),
         ],

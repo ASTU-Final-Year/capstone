@@ -63,7 +63,7 @@ export const sessionCache = new Cache<string, Session>({
     const { userId } = entry.value;
     // Clear user cache
     userCache.delete(userId);
-    if (reason === "deleted" || reason === "expired") {
+    if (reason === "expired") {
       try {
         // Delete session from database
         await db.delete(sessions).where(eq(sessions.id, sessionId));
